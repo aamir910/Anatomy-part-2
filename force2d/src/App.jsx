@@ -294,7 +294,7 @@ console.log('newGraphData' ,newGraphData)
                   alignItems: "center",
                 }}>
                 <span>Anatomy based categorization</span>
-                <div>
+                {/* <div>
                   <Select
                     mode="multiple"
                     placeholder="Select disease"
@@ -311,7 +311,7 @@ console.log('newGraphData' ,newGraphData)
                     ))}
                   </Select>
                   <Button onClick={applyFilter}>Filter</Button>
-                </div>
+                </div> */}
               </div>
             }
             bordered
