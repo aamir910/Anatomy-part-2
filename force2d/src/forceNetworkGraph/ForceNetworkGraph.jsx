@@ -16,7 +16,6 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         group: node.type,
         class: node.class,
         Gene: node.Gene,
-       
       })),
       links: links.map((link) => ({
         source: link.source,
@@ -28,16 +27,12 @@ const ForceNetworkGraph = ({ nodes, links }) => {
     [nodes, links]
   );
 
-
-
-
-  
   // Function to draw different node shapes based on the group and class
   const getNodeColor = (nodeClass) => {
     switch (nodeClass) {
       // Existing cases
-      case "Conjunctival Diseases":
-        return "red";
+      case "Refractive Errors":
+        return "red"; // Color from items array
       case "Retinal Diseases":
         return "blue";
       case "Others":
@@ -52,6 +47,8 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         return "cyan";
       case "Corneal Diseases":
         return "magenta";
+      case "Conjunctival Diseases":
+        return "red";
       case "Orbital Diseases":
         return "teal";
       case "Eye Neoplasms":
@@ -150,28 +147,28 @@ const ForceNetworkGraph = ({ nodes, links }) => {
     ctx.fillStyle = color;
 
     if (node.group === "Disease") {
-        // Draw triangle for 'Disease'
-        ctx.moveTo(node.x, node.y - shapeSize);
-        ctx.lineTo(node.x - shapeSize, node.y + shapeSize);
-        ctx.lineTo(node.x + shapeSize, node.y + shapeSize);
-        ctx.closePath();
+      // Draw triangle for 'Disease'
+      ctx.moveTo(node.x, node.y - shapeSize);
+      ctx.lineTo(node.x - shapeSize, node.y + shapeSize);
+      ctx.lineTo(node.x + shapeSize, node.y + shapeSize);
+      ctx.closePath();
     } else if (node.group === "Gene") {
-        // Draw pentagon for 'Gene'
-        const sides = 5;
-        const angle = (2 * Math.PI) / sides;
+      // Draw pentagon for 'Gene'
+      const sides = 5;
+      const angle = (2 * Math.PI) / sides;
 
-        ctx.moveTo(
-            node.x + shapeSize * Math.cos(0),
-            node.y + shapeSize * Math.sin(0)
+      ctx.moveTo(
+        node.x + shapeSize * Math.cos(0),
+        node.y + shapeSize * Math.sin(0)
+      );
+
+      for (let i = 1; i <= sides; i++) {
+        ctx.lineTo(
+          node.x + shapeSize * Math.cos(i * angle),
+          node.y + shapeSize * Math.sin(i * angle)
         );
-
-        for (let i = 1; i <= sides; i++) {
-            ctx.lineTo(
-                node.x + shapeSize * Math.cos(i * angle),
-                node.y + shapeSize * Math.sin(i * angle)
-            );
-        }
-        ctx.closePath();
+      }
+      ctx.closePath();
     }
 
     ctx.fill();
@@ -180,8 +177,7 @@ const ForceNetworkGraph = ({ nodes, links }) => {
     ctx.fillStyle = "black";
     ctx.font = "10px Arial";
     ctx.fillText(node.id, node.x + shapeSize + 5, node.y);
-};
-
+  };
 
   // Handle node click to set selected node
   const handleNodeClick = (node) => {
@@ -343,7 +339,7 @@ const DataTable = ({ node, onClose }) => {
     dataSource = [
       { key: "Gene", property: "Gene", value: node.Gene },
       { key: "Name", property: "Name", value: node.Name },
- 
+
       { key: "ClinVar", property: "ClinVar", value: "click here" },
       { key: "Decipher", property: "Decipher", value: "click here" },
       { key: "gnomAD", property: "gnomAD", value: "click here" },
