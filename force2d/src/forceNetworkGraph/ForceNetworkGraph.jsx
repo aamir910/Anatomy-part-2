@@ -6,6 +6,14 @@ const ForceNetworkGraph = ({ nodes, links }) => {
   const graphRef = useRef();
   const [selectedNode, setSelectedNode] = useState(null); // State to manage selected node
 
+
+
+
+  console.log('node' ,nodes  , "link" , links )
+
+
+
+
   // Prepare graph data format for ForceGraph
   const graphData = useMemo(
     () => ({
@@ -13,19 +21,18 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         id: node.id,
         group: node.type,
         class: node.class,
-        Phenotypes: node.Phenotypes,
         Gene: node.Gene,
-        Name: node.Name,
-        GeneCategory: node.Synonyms,
-        Location: node.Location,
-        Strand: node.Strand,
-        Description: node.Description,
-        OMIM: node.OMIM,
-        Ensembl: node.Ensembl,
-        ClinVar: node.ClinVar,
-        Decipher: node.Decipher,
-        gnomAD: node.gnomAD,
-        PanelApp: node.PanelApp,
+        // Name: node.Name,
+        // GeneCategory: node.Synonyms,
+        // Location: node.Location,
+        // Strand: node.Strand,
+        // Description: node.Description,
+        // OMIM: node.OMIM,
+        // Ensembl: node.Ensembl,
+        // ClinVar: node.ClinVar,
+        // Decipher: node.Decipher,
+        // gnomAD: node.gnomAD,
+        // PanelApp: node.PanelApp,
       })),
       links: links.map((link) => ({
         source: link.source,
@@ -40,49 +47,114 @@ const ForceNetworkGraph = ({ nodes, links }) => {
   // Function to draw different node shapes based on the group and class
   const getNodeColor = (nodeClass) => {
     switch (nodeClass) {
-      case "Refractive errors":
+      // Existing cases
+      case "Conjunctival Diseases":
         return "red";
-      case "Retinal diseases":
+      case "Retinal Diseases":
         return "blue";
       case "Others":
         return "green";
-      case "Lens diseases":
+      case "Lens Diseases":
         return "orange";
-      case "Ocular hypertension":
+      case "Ocular Hypertension":
         return "purple";
-      case "Ocular motility disorders":
+      case "Ocular Motility Disorders":
         return "pink";
-      case "Uveal diseases":
+      case "Uveal Diseases":
         return "cyan";
-      case "Corneal diseases":
+      case "Corneal Diseases":
         return "magenta";
-      case "Conjunctival diseases":
-        return "lime";
-      case "Orbital diseases":
+      case "Orbital Diseases":
         return "teal";
       case "Eye Neoplasms":
         return "salmon";
-      case "Lacrimal Apparatus diseases":
+      case "Lacrimal Apparatus Diseases":
         return "violet";
-      case "Pseudogene":
-        return "brown";
-      case "Genetic Locus":
-        return "darkgreen";
-      case "lncRNA":
-        return "orange";
-      case "miRNA":
-        return "purple";
-      case "mt_tRNA":
-        return "darkblue";
-      case "Other":
-        return "gray";
-      case "Protein coding":
-        return "yellow";
-      case "RNA gene":
-        return "pink";
+    
+      // New cases with unique colors
+      case "missense variant":
+        return "gold";
+      case "inframe deletion":
+        return "silver";
+      case "frameshift variant":
+        return "beige";
+      case "intron variant":
+        return "lavender";
+      case "regulatory region variant":
+        return "crimson";
+      case "intergenic variant":
+        return "aqua";
+      case "missense variant&NMD transcript variant":
+        return "indigo";
+      case "splice acceptor variant&NMD transcript variant":
+        return "maroon";
+      case "splice region variant":
+        return "darkorange";
+      case "splice donor variant":
+        return "olive";
+      case "non coding transcript exon variant":
+        return "peru";
+      case "3 prime UTR variant":
+        return "lightblue";
+      case "5 prime UTR variant":
+        return "darkgoldenrod";
+      case "stop gained":
+        return "limegreen";
+      case "synonymous variant":
+        return "turquoise";
+      case "TF binding site variant":
+        return "steelblue";
+      case "splice acceptor variant":
+        return "orchid";
+      case "downstream gene variant":
+        return "coral";
+      case "stop lost":
+        return "chocolate";
+      case "missense variant&splice region variant":
+        return "navy";
+      case "frameshift variant&splice region variant":
+        return "khaki";
+      case "splice region variant&intron variant":
+        return "seagreen";
+      case "plice region variant":
+        return "hotpink";
+      case "stop gained&splice region variant":
+        return "wheat";
+      case "non coding transcript exon variant; intron variant; intron variant":
+        return "plum";
+      case "splice region variant&synonymous variant":
+        return "cyan";
+      case "intron variant&NMD transcript variant":
+        return "greenyellow";
+      case "3 prime UTR variant&NMD transcript variant":
+        return "mediumorchid";
+      case "intergenic variant x intron variant":
+        return "darkslategray";
+      case "splice acceptor variant&non coding transcript variant":
+        return "lightcoral";
+      case "upstream gene variant":
+        return "tan";
+      case "rameshift variant":
+        return "lightseagreen";
+      case "inframe insertion":
+        return "mediumvioletred";
+      case "protein altering variant":
+        return "powderblue";
+      case "non coding transcript exon variant&non coding transcript variant":
+        return "peachpuff";
+      case "5 prime UTR variant&NMD transcript variant":
+        return "lightgreen";
+      case "splice donor variant&NMD transcript variant":
+        return "darkkhaki";
+      case "intron variant; intron variant; TF binding site variant":
+        return "deeppink";
+    
+      // Default case
       default:
         return "black"; // Default color if class not found
     }
+    
+    
   };
 
   const drawNode = (node, ctx) => {
@@ -112,7 +184,6 @@ const ForceNetworkGraph = ({ nodes, links }) => {
 
   // Handle node click to set selected node
   const handleNodeClick = (node) => {
-    console.log(node, "node data here");
     setSelectedNode(node); // Set the selected node for table
   };
 
@@ -156,7 +227,6 @@ const renderPhenotypes = (text) => {
 
   // Ensure text is properly parsed as a string
   if (typeof text !== "string") {
-    console.error("Unexpected data format in Phenotypes:", text);
     return "Invalid data";
   }
 

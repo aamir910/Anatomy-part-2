@@ -50,13 +50,15 @@ function App() {
 
   const fetchExcelFile = async () => {
     try {
-      const response = await fetch("/Gene_Disease_final_file.xlsx");
+      const response = await fetch("/Variant_Disease_final_file_updated.xlsx");
       const data = await response.arrayBuffer();
       const workbook = XLSX.read(data, { type: "array" });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
       console.log(jsonData, "jsonData");
+      const uniqueGeneCategories = [...new Set(jsonData.map(node => node.variant_category).filter(Boolean))];
+      console.log("Unique gene categories:", uniqueGeneCategories);
       setJsonData(jsonData);
       extractUniqueClasses(jsonData);
       setOriginalData(jsonData); // Extract unique classes after setting jsonData
@@ -77,19 +79,20 @@ function App() {
     setUniqueClasses(Array.from(classes));
   };
 
-  console.log(graphData , "Graphdata")
+
+
+
   const createNodesAndLinks = (data) => {
     let filteredRows = [];
     const nodesMap = new Map();
     const links = [];
 
-    console.log(data);
     data.forEach((row) => {
       const disease = row.Disease;
-      const gene = row.Gene;
-      const Phenotypes = row.Phenotypes;
+      const gene = row.SNPID;
+      // const Phenotypes = row.Phenotypes;
       const class_disease = row.Disease_category;
-      const class_gene = row["Gene category"];
+      const class_gene = row["variant_category"];
 
       if (checkedClasses[row.Disease_category]) {
         filteredRows.push(row); // Add the entire row to the filteredRows array
@@ -100,16 +103,16 @@ function App() {
       extractUniqueClasses(filteredRows);
 
 
-        if ( disease && expandedState[disease] !== undefined) {
-          if (!expandedState[disease].visible) {
-            return;
-          }
-        }
-        if ( gene && expandedState[gene] !== undefined) {
-          if (!expandedState[gene].visible) {
-            return;
-          }
-        }
+        // if ( disease && expandedState[disease] !== undefined) {
+        //   if (!expandedState[disease].visible) {
+        //     return;
+        //   }
+        // }
+        // if ( gene && expandedState[gene] !== undefined) {
+        //   if (!expandedState[gene].visible) {
+        //     return;
+        //   }
+        // }
 
 
       if (disease && !nodesMap.has(disease)) {
@@ -117,7 +120,7 @@ function App() {
           id: disease,
           type: "Disease",
           class: class_disease,
-          Phenotypes: Phenotypes,
+          // Phenotypes: Phenotypes,
         });
       }
 
@@ -127,17 +130,7 @@ function App() {
           type: "Gene",
           class: class_gene,
           Gene: gene,
-          Name: row.Name,
-          GeneCategory: row.Synonyms,
-          Location: row.Location,
-          Strand: row.Strand,
-          Description: row.Description,
-          OMIM: row.OMIM,
-          Ensembl: row.Ensembl,
-          ClinVar: row.ClinVar,
-          Decipher: row.Decipher,
-          gnomAD: row.gnomAD,
-          PanelApp: row.PanelApp,
+      
         });
       }
 
@@ -157,53 +150,38 @@ function App() {
         // Check if Disease category is selected (true in checkedClasses)
         if (
           checkedClasses[row.Disease_category] &&
-          checkedClasses[row["Gene category"]]
+          checkedClasses[row.variant_category]
         ) {
           return true; // Keep the row if Disease is checked (true)
         }
         return false; // Exclude the row if neither is checked (false)
       });
 
-      const newGraphData = createNodesAndLinks(jsonData2);
-
-      
-      const initialState = newGraphData.nodes
-        .filter((item) => item.type === "Disease"  ||     item.type === "Gene"  ) 
-        .reduce((acc, item) => {
-          acc[item.id] = {
-            visible: true, // Visibility flag
-            label: item.class, // Store the label
-        type: item.type 
-
-          };
-          return acc;
-        }, {});
-
-      setExpandedState(initialState);
-      console.log("initialState" , initialState)
+      const newGraphData = createNodesAndLinks(jsonData);
+console.log('newGraphData' ,newGraphData)
 
       setGraphData(newGraphData);
     }
   }, [jsonData, checkedClasses]);
-  useEffect(() => {
-    if (jsonData) {
-      let jsonData2 = jsonData.filter((row) => {
-        // Check if Disease category is selected (true in checkedClasses)
-        if (
-          checkedClasses[row.Disease_category] &&
-          checkedClasses[row["Gene category"]]
-        ) {
-          return true; // Keep the row if Disease is checked (true)
-        }
-        return false; // Exclude the row if neither is checked (false)
-      });
+  // useEffect(() => {
+  //   if (jsonData) {
+  //     let jsonData2 = jsonData.filter((row) => {
+  //       // Check if Disease category is selected (true in checkedClasses)
+  //       if (
+  //         checkedClasses[row.Disease_category] &&
+  //         checkedClasses[row["Gene category"]]
+  //       ) {
+  //         return true; // Keep the row if Disease is checked (true)
+  //       }
+  //       return false; // Exclude the row if neither is checked (false)
+  //     });
 
-      const newGraphData = createNodesAndLinks(jsonData2);
+  //     const newGraphData = createNodesAndLinks(jsonData2);
 
 
-      setGraphData(newGraphData);
-    }
-  }, [jsonData, checkedClasses ,expandedState]);
+  //     setGraphData(newGraphData);
+  //   }
+  // }, [jsonData, checkedClasses ,expandedState]);
 
   const handleSelectionChange = (value) => {
     setSelectedValues(value);
@@ -236,7 +214,6 @@ function App() {
           setUniqueModes(uniqueModesArray);
         }
 
-        console.log(selectedValues, "selectedValues");
       } else {
         setJsonData(originalData);
         setUniqueModes([]);
