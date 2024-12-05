@@ -11,30 +11,45 @@ function App() {
   const [originalData, setOriginalData] = useState(null);
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [checkedClasses, setCheckedClasses] = useState({
-    // Disease Classes
-    "Refractive errors": true,
-    "Retinal diseases": true,
-    Others: true,
-    "Lens diseases": true,
-    "Ocular hypertension": true,
-    "Ocular motility disorders": true,
-    "Uveal diseases": true,
-    "Corneal diseases": true,
-    "Conjunctival diseases": true,
-    "Orbital diseases": true,
+   
+    // Disease Classes 
+    "Conjunctival Diseases": true,
+    "Corneal Diseases": true,
     "Eye Neoplasms": true,
-    "Lacrimal Apparatus diseases": true,
-
-    // Gene Classes
-    Pseudogene: true,
-    "Genetic Locus": true,
-    lncRNA: true,
-    miRNA: true,
-    mt_tRNA: true,
-    Other: true,
-    "Protein coding": true,
-    "RNA gene": true,
+    "Lacrimal Apparatus Diseases": true,
+    "Lens Diseases": true,
+    "Ocular Hypertension": true,
+    "Ocular Motility Disorders": true,
+    "Orbital Diseases": true,
+        Others: true,
+    "Refractive Errors": true,
+    "Retinal Diseases": true,
+    "Uveal Diseases": true,
+  
+    // Gene Classes (new cases)
+    "missense variant": true,
+    "inframe deletion": true,
+    "frameshift variant": true,
+    "intron variant": true,
+    "regulatory region variant": true,
+    "intergenic variant": true,
+    "splice region variant": true,
+    "splice donor variant": true,
+    "non coding transcript exon variant": true,
+    "3 prime UTR variant": true,
+    "5 prime UTR variant": true,
+    "stop gained": true,
+    "synonymous variant": true,
+    "TF binding site variant": true,
+    "splice acceptor variant": true,
+    "downstream gene variant": true,
+    "stop lost": true,
+    "upstream gene variant": true,
+    "rameshift variant": true,
+    "inframe insertion": true,
+    "protein altering variant": true,
   });
+  
 
   const [expandedState, setExpandedState] = useState({});
   
@@ -50,15 +65,19 @@ function App() {
 
   const fetchExcelFile = async () => {
     try {
-      const response = await fetch("/Variant_Disease_final_file_updated.xlsx");
+      const response = await fetch("/Variant_Disease_final_file.xlsx");
       const data = await response.arrayBuffer();
       const workbook = XLSX.read(data, { type: "array" });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
       console.log(jsonData, "jsonData");
+     
       const uniqueGeneCategories = [...new Set(jsonData.map(node => node.variant_category).filter(Boolean))];
       console.log("Unique gene categories:", uniqueGeneCategories);
+
+
+
       setJsonData(jsonData);
       extractUniqueClasses(jsonData);
       setOriginalData(jsonData); // Extract unique classes after setting jsonData
@@ -103,16 +122,16 @@ function App() {
       extractUniqueClasses(filteredRows);
 
 
-        // if ( disease && expandedState[disease] !== undefined) {
-        //   if (!expandedState[disease].visible) {
-        //     return;
-        //   }
-        // }
-        // if ( gene && expandedState[gene] !== undefined) {
-        //   if (!expandedState[gene].visible) {
-        //     return;
-        //   }
-        // }
+        if ( disease && expandedState[disease] !== undefined) {
+          if (!expandedState[disease].visible) {
+            return;
+          }
+        }
+        if ( gene && expandedState[gene] !== undefined) {
+          if (!expandedState[gene].visible) {
+            return;
+          }
+        }
 
 
       if (disease && !nodesMap.has(disease)) {
@@ -157,31 +176,47 @@ function App() {
         return false; // Exclude the row if neither is checked (false)
       });
 
-      const newGraphData = createNodesAndLinks(jsonData);
+
+      const newGraphData = createNodesAndLinks(jsonData2);
+
+
+      const initialState = newGraphData.nodes
+      .filter((item) => item.type === "Disease"  ||     item.type === "Gene"  ) 
+      .reduce((acc, item) => {
+        acc[item.id] = {
+          visible: true, // Visibility flag
+          label: item.class, // Store the label
+            type: item.type 
+
+        };
+        return acc;
+      }, {});
+console.log( 'expandedstate' , initialState )
+    setExpandedState(initialState);
 console.log('newGraphData' ,newGraphData)
 
       setGraphData(newGraphData);
     }
   }, [jsonData, checkedClasses]);
-  // useEffect(() => {
-  //   if (jsonData) {
-  //     let jsonData2 = jsonData.filter((row) => {
-  //       // Check if Disease category is selected (true in checkedClasses)
-  //       if (
-  //         checkedClasses[row.Disease_category] &&
-  //         checkedClasses[row["Gene category"]]
-  //       ) {
-  //         return true; // Keep the row if Disease is checked (true)
-  //       }
-  //       return false; // Exclude the row if neither is checked (false)
-  //     });
+  useEffect(() => {
+    if (jsonData) {
+      let jsonData2 = jsonData.filter((row) => {
+        // Check if Disease category is selected (true in checkedClasses)
+        if (
+          checkedClasses[row.Disease_category] &&
+          checkedClasses[row.variant_category]
+        ) {
+          return true; // Keep the row if Disease is checked (true)
+        }
+        return false; // Exclude the row if neither is checked (false)
+      });
 
-  //     const newGraphData = createNodesAndLinks(jsonData2);
+      const newGraphData = createNodesAndLinks(jsonData2);
 
 
-  //     setGraphData(newGraphData);
-  //   }
-  // }, [jsonData, checkedClasses ,expandedState]);
+      setGraphData(newGraphData);
+    }
+  }, [jsonData, checkedClasses ,expandedState]);
 
   const handleSelectionChange = (value) => {
     setSelectedValues(value);
@@ -233,6 +268,8 @@ console.log('newGraphData' ,newGraphData)
               backgroundColor: "#ffffff",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
               borderRadius: "8px",
+              maxHeight:"95vh",
+              overflowY: "auto", // Enables vertical scrolling
             }}>
             <Legend
               checkedClasses={checkedClasses}

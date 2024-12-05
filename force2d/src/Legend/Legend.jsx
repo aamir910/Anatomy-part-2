@@ -19,116 +19,110 @@ const Legend = ({
   const legendItems = [
     {
       group: "Disease",
-      items: [
-        {
-          shape: "triangle",
-          color: "red",
-          label: "Refractive errors",
-          class: "Refractive errors",
-        },
-        {
-          shape: "triangle",
-          color: "blue",
-          label: "Retinal diseases",
-          class: "Retinal diseases",
-        },
-        { shape: "triangle", color: "green", label: "Others", class: "Others" },
-        {
-          shape: "triangle",
-          color: "orange",
-          label: "Lens diseases",
-          class: "Lens diseases",
-        },
-        {
-          shape: "triangle",
-          color: "purple",
-          label: "Ocular hypertension",
-          class: "Ocular hypertension",
-        },
-        {
-          shape: "triangle",
-          color: "pink",
-          label: "Ocular motility disorders",
-          class: "Ocular motility disorders",
-        },
-        {
-          shape: "triangle",
-          color: "cyan",
-          label: "Uveal diseases",
-          class: "Uveal diseases",
-        },
-        {
-          shape: "triangle",
-          color: "magenta",
-          label: "Corneal diseases",
-          class: "Corneal diseases",
-        },
-        {
-          shape: "triangle",
-          color: "lime",
-          label: "Conjunctival diseases",
-          class: "Conjunctival diseases",
-        },
-        {
-          shape: "triangle",
-          color: "teal",
-          label: "Orbital diseases",
-          class: "Orbital diseases",
-        },
-        {
-          shape: "triangle",
-          color: "salmon",
-          label: "Eye Neoplasms",
-          class: "Eye Neoplasms",
-        },
-        {
-          shape: "triangle",
-          color: "violet",
-          label: "Lacrimal Apparatus diseases",
-          class: "Lacrimal Apparatus diseases",
-        },
-      ],
+     items: [
+  {
+    shape: "triangle",
+    color: "red",
+    label: "Refractive Errors",
+    class: "Refractive Errors",
+  },
+  {
+    shape: "triangle",
+    color: "blue",
+    label: "Retinal Diseases",
+    class: "Retinal Diseases",
+  },
+  {
+    shape: "triangle",
+    color: "green",
+    label: "Others",
+    class: "Others",
+  },
+  {
+    shape: "triangle",
+    color: "orange",
+    label: "Lens Diseases",
+    class: "Lens Diseases",
+  },
+  {
+    shape: "triangle",
+    color: "purple",
+    label: "Ocular Hypertension",
+    class: "Ocular Hypertension",
+  },
+  {
+    shape: "triangle",
+    color: "pink",
+    label: "Ocular Motility Disorders",
+    class: "Ocular Motility Disorders",
+  },
+  {
+    shape: "triangle",
+    color: "cyan",
+    label: "Uveal Diseases",
+    class: "Uveal Diseases",
+  },
+  {
+    shape: "triangle",
+    color: "magenta",
+    label: "Corneal Diseases",
+    class: "Corneal Diseases",
+  },
+  {
+    shape: "triangle",
+    color: "lime",
+    label: "Conjunctival Diseases",
+    class: "Conjunctival Diseases",
+  },
+  {
+    shape: "triangle",
+    color: "teal",
+    label: "Orbital Diseases",
+    class: "Orbital Diseases",
+  },
+  {
+    shape: "triangle",
+    color: "salmon",
+    label: "Eye Neoplasms",
+    class: "Eye Neoplasms",
+  },
+  {
+    shape: "triangle",
+    color: "violet",
+    label: "Lacrimal Apparatus Diseases",
+    class: "Lacrimal Apparatus Diseases",
+  },
+]
     },
-
+  
     {
-      group: "Gene",
+      group: "Variant",
       items: [
-        {
-          shape: "circle",
-          color: "brown",
-          label: "Pseudogene",
-          class: "Pseudogene",
-        },
-        {
-          shape: "circle",
-          color: "darkgreen",
-          label: "Genetic Locus",
-          class: "Genetic Locus",
-        },
-        { shape: "circle", color: "orange", label: "lncRNA", class: "lncRNA" },
-        { shape: "circle", color: "purple", label: "miRNA", class: "miRNA" },
-        {
-          shape: "circle",
-          color: "darkblue",
-          label: "mt_tRNA",
-          class: "mt_tRNA",
-        },
-        { shape: "circle", color: "gray", label: "Other", class: "Other" },
-        {
-          shape: "circle",
-          color: "yellow",
-          label: "Protein coding",
-          class: "Protein coding",
-        },
-        {
-          shape: "circle",
-          color: "pink",
-          label: "RNA gene",
-          class: "RNA gene",
-        },
+        { shape: "circle", color: "gold", label: "missense variant", class: "missense variant" },
+        { shape: "circle", color: "silver", label: "inframe deletion", class: "inframe deletion" },
+        { shape: "circle", color: "beige", label: "frameshift variant", class: "frameshift variant" },
+        { shape: "circle", color: "lavender", label: "intron variant", class: "intron variant" },
+        { shape: "circle", color: "crimson", label: "regulatory region variant", class: "regulatory region variant" },
+        { shape: "circle", color: "aqua", label: "intergenic variant", class: "intergenic variant" },
+        { shape: "circle", color: "darkorange", label: "splice region variant", class: "splice region variant" },
+        { shape: "circle", color: "olive", label: "splice donor variant", class: "splice donor variant" },
+        { shape: "circle", color: "peru", label: "non coding transcript exon variant", class: "non coding transcript exon variant" },
+        { shape: "circle", color: "lightblue", label: "3 prime UTR variant", class: "3 prime UTR variant" },
+        { shape: "circle", color: "darkgoldenrod", label: "5 prime UTR variant", class: "5 prime UTR variant" },
+        { shape: "circle", color: "limegreen", label: "stop gained", class: "stop gained" },
+        { shape: "circle", color: "turquoise", label: "synonymous variant", class: "synonymous variant" },
+        { shape: "circle", color: "steelblue", label: "TF binding site variant", class: "TF binding site variant" },
+        { shape: "circle", color: "orchid", label: "splice acceptor variant", class: "splice acceptor variant" },
+        { shape: "circle", color: "coral", label: "downstream gene variant", class: "downstream gene variant" },
+        { shape: "circle", color: "chocolate", label: "stop lost", class: "stop lost" },
+        { shape: "circle", color: "tan", label: "upstream gene variant", class: "upstream gene variant" },
+        { shape: "circle", color: "lightseagreen", label: "rameshift variant", class: "rameshift variant" },
+        { shape: "circle", color: "mediumvioletred", label: "inframe insertion", class: "inframe insertion" },
+        { shape: "circle", color: "powderblue", label: "protein altering variant", class: "protein altering variant" },
       ],
     },
   ];
+  
   console.log(selectedValues, "checkedClasses checkedClasses");
   const filteredLegendItems = legendItems.map(
     (group) => {
@@ -183,7 +177,7 @@ const Legend = ({
                   />
                 ) : (
                   <ToggleCategory
-                    type="Gene"
+                    type="Variant"
                     legendItems={legendItems}
                     checkedClasses={checkedClasses}
                     setCheckedClasses={setCheckedClasses}
@@ -237,12 +231,16 @@ const Legend = ({
                   )}
                   {item.shape === "circle" && (
                     <>
-                      <svg
-                        width="20"
-                        height="20"
-                        style={{ marginRight: "2px", marginTop: "5px" }}>
-                        <circle cx="10" cy="10" r="10" fill={item.color} />
-                      </svg>
+                     <svg
+  width="20"
+  height="20"
+  style={{ marginRight: "3px", marginTop: "5px" }}
+>
+  <polygon
+    points="10,0 19,7 15,19 5,19 1,7"
+    fill={item.color}
+  />
+</svg>
                       <Checkbox
                         checked={checkedClasses[item.class]}
                         onChange={(e) =>

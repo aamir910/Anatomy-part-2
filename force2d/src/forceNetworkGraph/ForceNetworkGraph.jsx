@@ -6,13 +6,7 @@ const ForceNetworkGraph = ({ nodes, links }) => {
   const graphRef = useRef();
   const [selectedNode, setSelectedNode] = useState(null); // State to manage selected node
 
-
-
-
-  console.log('node' ,nodes  , "link" , links )
-
-
-
+  console.log("node", nodes, "link", links);
 
   // Prepare graph data format for ForceGraph
   const graphData = useMemo(
@@ -22,17 +16,7 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         group: node.type,
         class: node.class,
         Gene: node.Gene,
-        // Name: node.Name,
-        // GeneCategory: node.Synonyms,
-        // Location: node.Location,
-        // Strand: node.Strand,
-        // Description: node.Description,
-        // OMIM: node.OMIM,
-        // Ensembl: node.Ensembl,
-        // ClinVar: node.ClinVar,
-        // Decipher: node.Decipher,
-        // gnomAD: node.gnomAD,
-        // PanelApp: node.PanelApp,
+       
       })),
       links: links.map((link) => ({
         source: link.source,
@@ -44,6 +28,10 @@ const ForceNetworkGraph = ({ nodes, links }) => {
     [nodes, links]
   );
 
+
+
+
+  
   // Function to draw different node shapes based on the group and class
   const getNodeColor = (nodeClass) => {
     switch (nodeClass) {
@@ -70,7 +58,7 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         return "salmon";
       case "Lacrimal Apparatus Diseases":
         return "violet";
-    
+
       // New cases with unique colors
       case "missense variant":
         return "gold";
@@ -148,30 +136,42 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         return "darkkhaki";
       case "intron variant; intron variant; TF binding site variant":
         return "deeppink";
-    
+
       // Default case
       default:
         return "black"; // Default color if class not found
     }
-    
-    
   };
 
   const drawNode = (node, ctx) => {
-    const shapeSize = 10;
+    const shapeSize = 10; // Define the size of the shape
     const color = getNodeColor(node.class); // Get color based on class
     ctx.beginPath();
     ctx.fillStyle = color;
 
     if (node.group === "Disease") {
-      // Draw triangle for 'Disease'
-      ctx.moveTo(node.x, node.y - shapeSize);
-      ctx.lineTo(node.x - shapeSize, node.y + shapeSize);
-      ctx.lineTo(node.x + shapeSize, node.y + shapeSize);
-      ctx.closePath();
+        // Draw triangle for 'Disease'
+        ctx.moveTo(node.x, node.y - shapeSize);
+        ctx.lineTo(node.x - shapeSize, node.y + shapeSize);
+        ctx.lineTo(node.x + shapeSize, node.y + shapeSize);
+        ctx.closePath();
     } else if (node.group === "Gene") {
-      // Draw circle for 'Gene'
-      ctx.arc(node.x, node.y, shapeSize, 0, 2 * Math.PI, false);
+        // Draw pentagon for 'Gene'
+        const sides = 5;
+        const angle = (2 * Math.PI) / sides;
+
+        ctx.moveTo(
+            node.x + shapeSize * Math.cos(0),
+            node.y + shapeSize * Math.sin(0)
+        );
+
+        for (let i = 1; i <= sides; i++) {
+            ctx.lineTo(
+                node.x + shapeSize * Math.cos(i * angle),
+                node.y + shapeSize * Math.sin(i * angle)
+            );
+        }
+        ctx.closePath();
     }
 
     ctx.fill();
@@ -180,7 +180,8 @@ const ForceNetworkGraph = ({ nodes, links }) => {
     ctx.fillStyle = "black";
     ctx.font = "10px Arial";
     ctx.fillText(node.id, node.x + shapeSize + 5, node.y);
-  };
+};
+
 
   // Handle node click to set selected node
   const handleNodeClick = (node) => {
@@ -342,11 +343,7 @@ const DataTable = ({ node, onClose }) => {
     dataSource = [
       { key: "Gene", property: "Gene", value: node.Gene },
       { key: "Name", property: "Name", value: node.Name },
-      { key: "Location", property: "Location", value: node.Location },
-      { key: "Strand", property: "Strand", value: node.Strand },
-      { key: "Description", property: "Description", value: node.Description },
-      { key: "OMIM", property: "OMIM", value: node.OMIM },
-      { key: "Ensembl", property: "Ensembl", value: node.Ensembl },
+ 
       { key: "ClinVar", property: "ClinVar", value: "click here" },
       { key: "Decipher", property: "Decipher", value: "click here" },
       { key: "gnomAD", property: "gnomAD", value: "click here" },
