@@ -15,7 +15,20 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         id: node.id,
         group: node.type,
         class: node.class,
+        Phenotypes: node.Phenotypes,
         Gene: node.Gene,
+        Name: node.Name,
+        variant_type  : node.variant_type  ,
+        Position_hg38: node.Position_hg38,
+        Major_allele: node.Major_allele,
+        CADD: node.CADD,
+        PolyPhen: node.PolyPhen,
+        SIFT: node.SIFT,
+        Ensembl: node.Ensembl,
+        dbsnp: node.dbsnp,
+        Gnomad: node.Gnomad,
+        GERP: node.GERP,
+        protein: node.protein,
       })),
       links: links.map((link) => ({
         source: link.source,
@@ -278,7 +291,7 @@ const DataTable = ({ node, onClose }) => {
       render: (text, record) => {
         // Check if the property should be clickable
         if (
-          ["ClinVar", "Decipher", "gnomAD", "PanelApp"].includes(
+          ["Ensembl", "dbsnp", "Gnomad"].includes(
             record.property
           )
         ) {
@@ -338,12 +351,17 @@ const DataTable = ({ node, onClose }) => {
   } else {
     dataSource = [
       { key: "Gene", property: "Gene", value: node.Gene },
-      { key: "Name", property: "Name", value: node.Name },
-
-      { key: "ClinVar", property: "ClinVar", value: "click here" },
-      { key: "Decipher", property: "Decipher", value: "click here" },
-      { key: "gnomAD", property: "gnomAD", value: "click here" },
-      { key: "PanelApp", property: "PanelApp", value: "click here" },
+      { key: "variant_type", property: "variant_type", value: node.variant_type  },
+      { key: "Position_hg38", property: "Position_hg38", value: node.Position_hg38 },
+      { key: "Major_allele", property: "Major_allele", value: node.Major_allele },
+      { key: "CADD", property: "CADD", value: node.CADD },
+      { key: "SIFT", property: "SIFT", value: node.SIFT },
+      { key: "GERP", property: "GERP", value: node.GERP },
+      { key: "protein", property: "protein", value: node.protein },
+     { key: "Ensembl", property: "Ensembl", value: node.Ensembl },
+      { key: "dbsnp", property: "dbsnp", value: node.dbsnp },
+      { key: "Gnomad", property: "Gnomad", value: node.Gnomad },
+     
     ];
   }
 

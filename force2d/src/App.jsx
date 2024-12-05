@@ -148,7 +148,18 @@ function App() {
           id: gene,
           type: "Gene",
           class: class_gene,
-          Gene: gene,
+          Gene: row.Gene,
+          variant_type  : row.variant_type  ,
+          Position_hg38: row.Position_hg38,
+          Major_allele: row.Major_allele,
+          CADD: row.CADD,
+          PolyPhen: row.PolyPhen,
+          SIFT: row.SIFT,
+          Ensembl: row.Ensembl,
+          dbsnp: row.dbsnp,
+          Gnomad: row.Gnomad,
+          GERP: row.GERP,
+          protein: row.protein,
       
         });
       }
