@@ -100,131 +100,133 @@ const Legend = ({
       items: [
         {
           shape: "circle",
-          color: "gold",
+          color: "#FFD700", // Dark Gold
           label: "missense variant",
           class: "missense variant",
         },
         {
           shape: "circle",
-          color: "silver",
+          color: "#A9A9A9", // Dark Silver
           label: "inframe deletion",
           class: "inframe deletion",
         },
         {
           shape: "circle",
-          color: "beige",
+          color: "#8B4513", // Dark Beige
           label: "frameshift variant",
           class: "frameshift variant",
         },
         {
           shape: "circle",
-          color: "lavender",
+          color: "#483D8B", // Dark Lavender
           label: "intron variant",
           class: "intron variant",
         },
         {
           shape: "circle",
-          color: "crimson",
+          color: "#8B0000", // Dark Crimson
           label: "regulatory region variant",
           class: "regulatory region variant",
         },
         {
           shape: "circle",
-          color: "aqua",
+          color: "#008080", // Dark Aqua
           label: "intergenic variant",
           class: "intergenic variant",
         },
         {
           shape: "circle",
-          color: "darkorange",
+          color: "#FF4500", // Dark Orange
           label: "splice region variant",
           class: "splice region variant",
         },
         {
           shape: "circle",
-          color: "olive",
+          color: "#556B2F", // Dark Olive
           label: "splice donor variant",
           class: "splice donor variant",
         },
         {
           shape: "circle",
-          color: "peru",
+          color: "#8B4513", // Dark Peru
           label: "non coding transcript exon variant",
           class: "non coding transcript exon variant",
         },
         {
           shape: "circle",
-          color: "lightblue",
+          color: "#4682B4", // Dark Blue
           label: "3 prime UTR variant",
           class: "3 prime UTR variant",
         },
         {
           shape: "circle",
-          color: "darkgoldenrod",
+          color: "#B8860B", // Dark Goldenrod
           label: "5 prime UTR variant",
           class: "5 prime UTR variant",
         },
         {
           shape: "circle",
-          color: "limegreen",
+          color: "#228B22", // Dark Green
           label: "stop gained",
           class: "stop gained",
         },
         {
           shape: "circle",
-          color: "turquoise",
+          color: "#008B8B", // Dark Turquoise
           label: "synonymous variant",
           class: "synonymous variant",
         },
         {
           shape: "circle",
-          color: "steelblue",
+          color: "#4682B4", // Dark Steel Blue
           label: "TF binding site variant",
           class: "TF binding site variant",
         },
         {
           shape: "circle",
-          color: "orchid",
+          color: "#9932CC", // Dark Orchid
           label: "splice acceptor variant",
           class: "splice acceptor variant",
         },
         {
           shape: "circle",
-          color: "coral",
+          color: "#FF6347", // Dark Coral
           label: "downstream gene variant",
           class: "downstream gene variant",
         },
         {
           shape: "circle",
-          color: "chocolate",
+          color: "#8B4513", // Dark Chocolate
           label: "stop lost",
           class: "stop lost",
         },
         {
           shape: "circle",
-          color: "tan",
+          color: "#D2691E", // Dark Tan
           label: "upstream gene variant",
           class: "upstream gene variant",
         },
         {
           shape: "circle",
-          color: "lightseagreen",
-          label: "rameshift variant",
-          class: "rameshift variant",
+          color: "#20B2AA", // Dark Light Sea Green
+          label: "frameshift variant",
+          class: "frameshift variant",
         },
         {
           shape: "circle",
-          color: "mediumvioletred",
+          color: "#8B008B", // Dark Medium Violet Red
           label: "inframe insertion",
           class: "inframe insertion",
         },
         {
           shape: "circle",
-          color: "powderblue",
+          color: "#5F9EA0", // Dark Powder Blue
           label: "protein altering variant",
           class: "protein altering variant",
         },
-      ],
+      ]
+      
+      
     },
   ];
 

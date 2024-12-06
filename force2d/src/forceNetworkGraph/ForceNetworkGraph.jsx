@@ -71,82 +71,81 @@ const ForceNetworkGraph = ({ nodes, links }) => {
 
       // New cases with unique colors
       case "missense variant":
-        return "gold";
+        return "#FFD700"; // Dark Gold
       case "inframe deletion":
-        return "silver";
+        return "#A9A9A9"; // Dark Silver
       case "frameshift variant":
-        return "beige";
+        return "#8B4513"; // Dark Beige
       case "intron variant":
-        return "lavender";
+        return "#483D8B"; // Dark Lavender
       case "regulatory region variant":
-        return "crimson";
+        return "#8B0000"; // Dark Crimson
       case "intergenic variant":
-        return "aqua";
+        return "#008080"; // Dark Aqua
       case "missense variant&NMD transcript variant":
-        return "indigo";
+        return "#4B0082"; // Indigo
       case "splice acceptor variant&NMD transcript variant":
-        return "maroon";
+        return "#800000"; // Maroon
       case "splice region variant":
-        return "darkorange";
+        return "#FF4500"; // Dark Orange
       case "splice donor variant":
-        return "olive";
+        return "#556B2F"; // Dark Olive
       case "non coding transcript exon variant":
-        return "peru";
+        return "#8B4513"; // Dark Peru
       case "3 prime UTR variant":
-        return "lightblue";
+        return "#4682B4"; // Dark Blue
       case "5 prime UTR variant":
-        return "darkgoldenrod";
+        return "#B8860B"; // Dark Goldenrod
       case "stop gained":
-        return "limegreen";
+        return "#228B22"; // Dark Green
       case "synonymous variant":
-        return "turquoise";
+        return "#008B8B"; // Dark Turquoise
       case "TF binding site variant":
-        return "steelblue";
+        return "#4682B4"; // Dark Steel Blue
       case "splice acceptor variant":
-        return "orchid";
+        return "#9932CC"; // Dark Orchid
       case "downstream gene variant":
-        return "coral";
+        return "#FF6347"; // Dark Coral
       case "stop lost":
-        return "chocolate";
+        return "#8B4513"; // Dark Chocolate
       case "missense variant&splice region variant":
-        return "navy";
+        return "#000080"; // Navy
       case "frameshift variant&splice region variant":
-        return "khaki";
+        return "#BDB76B"; // Dark Khaki
       case "splice region variant&intron variant":
-        return "seagreen";
+        return "#2E8B57"; // Sea Green
       case "plice region variant":
-        return "hotpink";
+        return "#FF1493"; // Deep Pink
       case "stop gained&splice region variant":
-        return "wheat";
+        return "#8B4513"; // Wheat-like Dark Tan
       case "non coding transcript exon variant; intron variant; intron variant":
-        return "plum";
+        return "#DDA0DD"; // Plum
       case "splice region variant&synonymous variant":
-        return "cyan";
+        return "#00CED1"; // Dark Cyan
       case "intron variant&NMD transcript variant":
-        return "greenyellow";
+        return "#ADFF2F"; // Green Yellow
       case "3 prime UTR variant&NMD transcript variant":
-        return "mediumorchid";
+        return "#BA55D3"; // Medium Orchid
       case "intergenic variant x intron variant":
-        return "darkslategray";
+        return "#2F4F4F"; // Dark Slate Gray
       case "splice acceptor variant&non coding transcript variant":
-        return "lightcoral";
+        return "#8B0000"; // Light Coral-like Crimson
       case "upstream gene variant":
-        return "tan";
+        return "#D2691E"; // Dark Tan
       case "rameshift variant":
-        return "lightseagreen";
+        return "#20B2AA"; // Dark Light Sea Green
       case "inframe insertion":
-        return "mediumvioletred";
+        return "#8B008B"; // Dark Medium Violet Red
       case "protein altering variant":
-        return "powderblue";
+        return "#5F9EA0"; // Dark Powder Blue
       case "non coding transcript exon variant&non coding transcript variant":
-        return "peachpuff";
+        return "#CD853F"; // Peach Puff-like Dark Saddle Brown
       case "5 prime UTR variant&NMD transcript variant":
-        return "lightgreen";
+        return "#006400"; // Dark Green
       case "splice donor variant&NMD transcript variant":
-        return "darkkhaki";
+        return "#BDB76B"; // Dark Khaki
       case "intron variant; intron variant; TF binding site variant":
-        return "deeppink";
-
+        return "#FF1493"; // Deep Pink
       // Default case
       default:
         return "black"; // Default color if class not found
@@ -189,7 +188,7 @@ const ForceNetworkGraph = ({ nodes, links }) => {
     // Optional: Add node ID label next to each node
     ctx.fillStyle = "black";
     ctx.font = "10px Arial";
-    ctx.fillText(node.id, node.x + shapeSize + 5, node.y);
+    // ctx.fillText(node.id, node.x + shapeSize + 5, node.y);
   };
 
   // Handle node click to set selected node
