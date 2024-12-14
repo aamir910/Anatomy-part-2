@@ -304,7 +304,7 @@ console.log('newGraphData' ,newGraphData)
                   justifyContent: "space-between",
                   alignItems: "center",
                 }}>
-                <span>Anatomy based categorization</span>
+                <span>Anatomy variant based categorization</span>
                 {/* <div>
                   <Select
                     mode="multiple"
