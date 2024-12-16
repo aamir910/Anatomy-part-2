@@ -319,12 +319,15 @@ const Legend = ({
 
                   {item.shape === "triangle" && (
                     <>
+                    <div style={{margin:"5px"}}>
+
                       <svg
                         width="20"
                         height="20"
                         style={{ marginRight: "2px" }}>
                         <polygon points="10,0 0,20 20,20" fill={item.color} />
                       </svg>
+                    </div>
 
                       <Checkbox
                         checked={checkedClasses[item.class]}
@@ -337,6 +340,8 @@ const Legend = ({
                   )}
                   {item.shape === "circle" && (
                     <>
+                     <div style={{margin:"5px"}}>
+
                       <svg
                         width="20"
                         height="20"
@@ -346,6 +351,7 @@ const Legend = ({
                           fill={item.color}
                         />
                       </svg>
+                    </div>
                       <Checkbox
                         checked={checkedClasses[item.class]}
                         onChange={(e) =>
