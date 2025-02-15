@@ -271,7 +271,7 @@ console.log('newGraphData' ,newGraphData)
     <div className="app-container" style={{ padding: "2px", width: "100%" }}>
       <Row gutter={16}>
         {/* Legend with checkboxes */}
-        <Col span={4} style={{ minWidth: "16%" }}>
+        <Col span={5} style={{ minWidth: "16%" }}>
           <Card
             title=""
             bordered
@@ -279,8 +279,7 @@ console.log('newGraphData' ,newGraphData)
               backgroundColor: "#ffffff",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
               borderRadius: "8px",
-              maxHeight:"95vh",
-              overflowY: "auto", // Enables vertical scrolling
+             
             }}>
             <Legend
               checkedClasses={checkedClasses}
@@ -295,7 +294,7 @@ console.log('newGraphData' ,newGraphData)
         </Col>
 
         {/* 2D Force Network Graph */}
-        <Col span={19} style={{ minWidth: "65%" }}>
+        <Col span={18} style={{ minWidth: "65%" }}>
           <Card
             title={
               <div
