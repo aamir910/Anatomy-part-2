@@ -10,7 +10,6 @@ function App() {
   const [originalData, setOriginalData] = useState(null);
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [checkedClasses, setCheckedClasses] = useState({
-    // Disease Classes
     "Conjunctival Diseases": true,
     "Corneal Diseases": true,
     "Eye Neoplasms": true,
@@ -23,8 +22,6 @@ function App() {
     "Refractive Errors": true,
     "Retinal Diseases": true,
     "Uveal Diseases": true,
-
-    // Variant Classes (replacing Gene Classes)
     "missense variant": true,
     "inframe deletion": true,
     "frameshift variant": true,
@@ -43,7 +40,6 @@ function App() {
     "downstream gene variant": true,
     "stop lost": true,
     "upstream gene variant": true,
-    "rameshift variant": true, // Note: Typo in your original, assuming "frameshift variant"
     "inframe insertion": true,
     "protein altering variant": true,
   });
@@ -109,8 +105,6 @@ function App() {
         filteredRows.push(row);
       }
 
-      extractUniqueClasses(filteredRows);
-
       if (disease && expandedState[disease] !== undefined) {
         if (!expandedState[disease].visible) {
           return;
@@ -160,18 +154,7 @@ function App() {
 
   useEffect(() => {
     if (jsonData) {
-      let jsonData2 = jsonData.filter((row) => {
-        if (
-          checkedClasses[row.Disease_category] &&
-          checkedClasses[row.variant_category]
-        ) {
-          return true;
-        }
-        return false;
-      });
-
-      const newGraphData = createNodesAndLinks(jsonData2);
-
+      const newGraphData = createNodesAndLinks(jsonData);
       const initialState = newGraphData.nodes
         .filter((item) => item.type === "Disease" || item.type === "Gene")
         .reduce((acc, item) => {
@@ -185,37 +168,55 @@ function App() {
 
       setExpandedState(initialState);
       console.log("initialState", initialState);
-
       setGraphData(newGraphData);
     }
-  }, [jsonData, checkedClasses]);
-
-  useEffect(() => {
-    if (jsonData) {
-      let jsonData2 = jsonData.filter((row) => {
-        if (
-          checkedClasses[row.Disease_category] &&
-          checkedClasses[row.variant_category]
-        ) {
-          return true;
-        }
-        return false;
-      });
-
-      const newGraphData = createNodesAndLinks(jsonData2);
-      setGraphData(newGraphData);
-    }
-  }, [jsonData, checkedClasses, expandedState]);
-
-  const handleSelectionChange = (value) => {
-    setSelectedValues(value);
-  };
+  }, [jsonData]);
 
   const handleClassCheckboxChange = (className, checked) => {
     setCheckedClasses((prevCheckedClasses) => ({
       ...prevCheckedClasses,
       [className]: checked,
     }));
+  };
+
+  // New function to handle filter data from Legend
+  const handleFilterData = ({ selectedClasses, selectedExpandedItems }) => {
+    if (jsonData) {
+      const filteredData = jsonData.filter((row) => {
+        const diseaseCategory = row.Disease_category;
+        const variantCategory = row.variant_category;
+        const disease = row.Disease;
+        const snpId = row.SNPID;
+
+        if (
+          !selectedClasses.includes(diseaseCategory) ||
+          !selectedClasses.includes(variantCategory)
+        ) {
+          return false;
+        }
+
+        if (disease && expandedState[disease] !== undefined) {
+          if (!selectedExpandedItems.includes(disease)) {
+            return false;
+          }
+        }
+
+        if (snpId && expandedState[snpId] !== undefined) {
+          if (!selectedExpandedItems.includes(snpId)) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      const newGraphData = createNodesAndLinks(filteredData);
+      setGraphData(newGraphData);
+    }
+  };
+
+  const handleSelectionChange = (value) => {
+    setSelectedValues(value);
   };
 
   const applyFilter = () => {
@@ -228,10 +229,7 @@ function App() {
         if (filtered.length > 0) {
           const uniqueModesArray = [
             ...new Set(
-              filtered.flatMap((row) => [
-                row["Disease_category"],
-                row["variant_category"],
-              ])
+              filtered.flatMap((row) => [row["Disease_category"], row["variant_category"]])
             ),
           ];
           setUniqueModes(uniqueModesArray);
@@ -309,6 +307,7 @@ function App() {
               setCheckedClasses={setCheckedClasses}
               expandedState={expandedState}
               setExpandedState={setExpandedState}
+              onFilterData={handleFilterData} // Pass the filter handler
             />
           </Card>
         </Col>
@@ -325,11 +324,11 @@ function App() {
               >
                 <span>Anatomy variant based categorization</span>
                 <Button type="primary" onClick={handleOpenBox}>
-                 Exports
+                  Exports
                 </Button>
               </div>
             }
-            bordered  
+            bordered
             style={{
               backgroundColor: "#ffffff",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
@@ -337,10 +336,7 @@ function App() {
             }}
           >
             {graphData.nodes.length > 0 && graphData.links.length > 0 ? (
-              <ForceNetworkGraph
-                nodes={graphData.nodes}
-                links={graphData.links}
-              />
+              <ForceNetworkGraph nodes={graphData.nodes} links={graphData.links} />
             ) : (
               <p
                 style={{
@@ -365,11 +361,7 @@ function App() {
         <Button type="primary" onClick={exportToExcel}>
           Export to Excel
         </Button>
-        <Button
-          type="primary"
-          style={{ marginLeft: "10px" }}
-          onClick={takeScreenshot}
-        >
+        <Button type="primary" style={{ marginLeft: "10px" }} onClick={takeScreenshot}>
           Take Screenshot
         </Button>
       </Modal>
