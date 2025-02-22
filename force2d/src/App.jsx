@@ -344,7 +344,7 @@ function App() {
               >
                 <span>Anatomy variant based categorization</span>
                 <Button type="primary" onClick={handleOpenBox}>
-                  Exports
+                  Export
                 </Button>
               </div>
             }
