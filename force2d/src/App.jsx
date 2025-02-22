@@ -329,7 +329,7 @@ function App() {
                 </Button>
               </div>
             }
-            bordered
+            bordered  
             style={{
               backgroundColor: "#ffffff",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
