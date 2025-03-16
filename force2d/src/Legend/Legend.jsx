@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import { Row, Col, Checkbox, Input, Button } from "antd";
 import ToggleCategory from "./ToggleCategory";
 
@@ -9,7 +9,7 @@ const Legend = ({
   setCheckedClasses,
   expandedState,
   setExpandedState,
-  onFilterData, // New prop to pass filtered data to parent
+  onFilterData,
 }) => {
   const [expandedClasses, setExpandedClasses] = useState({});
   const [searchQueries, setSearchQueries] = useState({});
@@ -53,12 +53,84 @@ const Legend = ({
         { shape: "circle", color: "#FF6347", label: "downstream gene variant", class: "downstream gene variant" },
         { shape: "circle", color: "#8B4513", label: "stop lost", class: "stop lost" },
         { shape: "circle", color: "#D2691E", label: "upstream gene variant", class: "upstream gene variant" },
-        { shape: "circle", color: "#20B2AA", label: "frameshift variant", class: "frameshift variant" }, // Duplicate corrected
+        { shape: "circle", color: "#20B2AA", label: "frameshift variant", class: "frameshift variant" },
         { shape: "circle", color: "#8B008B", label: "inframe insertion", class: "inframe insertion" },
         { shape: "circle", color: "#5F9EA0", label: "protein altering variant", class: "protein altering variant" },
       ],
     },
   ];
+
+  // New state to track indeterminate status for each main category checkbox
+  const [indeterminateState, setIndeterminateState] = useState({});
+
+  // Effect to synchronize main category checkboxes and handle indeterminate state
+  useEffect(() => {
+    if (!expandedState || !checkedClasses) return;
+
+    const updatedCheckedClasses = { ...checkedClasses };
+    const updatedIndeterminateState = {};
+
+    legendItems.forEach(group => {
+      group.items.forEach(item => {
+        const relatedExpandedItems = Object.entries(expandedState).filter(
+          ([_, details]) => details.label === item.label
+        );
+
+        if (relatedExpandedItems.length > 0) {
+          const allExpandedChecked = relatedExpandedItems.every(
+            ([_, details]) => details.visible
+          );
+          const anyExpandedChecked = relatedExpandedItems.some(
+            ([_, details]) => details.visible
+          );
+
+          // Logic for checked and indeterminate states
+          if (allExpandedChecked) {
+            updatedCheckedClasses[item.class] = true;
+            updatedIndeterminateState[item.class] = false;
+          } else if (anyExpandedChecked) {
+            updatedCheckedClasses[item.class] = true; // Partially checked, so main checkbox is checked
+            updatedIndeterminateState[item.class] = true; // Indeterminate state
+          } else {
+            updatedCheckedClasses[item.class] = false;
+            updatedIndeterminateState[item.class] = false;
+          }
+        }
+      });
+    });
+
+    if (JSON.stringify(updatedCheckedClasses) !== JSON.stringify(checkedClasses)) {
+      setCheckedClasses(updatedCheckedClasses);
+    }
+    setIndeterminateState(updatedIndeterminateState);
+  }, [expandedState, checkedClasses, legendItems, setCheckedClasses]);
+
+  const handleMainCategoryChange = (className, checked) => {
+    onClassChange(className, checked);
+
+    let targetItem = null;
+    legendItems.forEach(group => {
+      group.items.forEach(item => {
+        if (item.class === className) {
+          targetItem = item;
+        }
+      });
+    });
+
+    if (targetItem) {
+      setExpandedState(prev => {
+        const updated = { ...prev };
+        Object.entries(updated).forEach(([id, details]) => {
+          if (details.label === targetItem.label) {
+            updated[id] = { ...details, visible: checked };
+          }
+        });
+        return updated;
+      });
+      // Clear indeterminate state when manually checking/unchecking
+      setIndeterminateState(prev => ({ ...prev, [className]: false }));
+    }
+  };
 
   const toggleExpand = (className) => {
     setExpandedClasses((prev) => ({
@@ -67,7 +139,6 @@ const Legend = ({
     }));
   };
 
-  // Function to handle filtering when the button is clicked
   const handleFilterData = () => {
     const selectedClasses = Object.entries(checkedClasses)
       .filter(([_, checked]) => checked)
@@ -77,7 +148,6 @@ const Legend = ({
       .filter(([_, details]) => details.visible)
       .map(([id]) => id);
 
-    // Pass the filtered data to the parent component
     onFilterData({
       selectedClasses,
       selectedExpandedItems,
@@ -85,31 +155,15 @@ const Legend = ({
   };
 
   return (
-    <Row
-      style={{
-        maxHeight: "100vh",
-        overflowY: "auto",
-        scrollbarWidth: "thin",
-        scrollbarColor: "#888 #f1f1f1",
-      }}
-    >
-      {/* Filter Button at the Top */}
+    <Row style={{ maxHeight: "100vh", overflowY: "auto", scrollbarWidth: "thin", scrollbarColor: "#888 #f1f1f1" }}>
       <Col span={24} style={{ marginBottom: "10px" }}>
-        <Button
-          type="primary"
-          onClick={handleFilterData}
-          style={{ width: "70%", maxWidth: "250px" }}
-        >
+        <Button type="primary" onClick={handleFilterData} style={{ width: "70%", maxWidth: "250px" }}>
           Filter Data
         </Button>
       </Col>
 
       {legendItems.map((group, groupIndex) => (
-        <Col
-          key={groupIndex}
-          span={24}
-          style={{ marginTop: group.group === "" ? "25px" : "0" }}
-        >
+        <Col key={groupIndex} span={24} style={{ marginTop: group.group === "" ? "25px" : "0" }}>
           <dl style={{ margin: 0, padding: 0 }}>
             <dt
               style={{
@@ -128,35 +182,19 @@ const Legend = ({
                   legendItems={legendItems}
                   checkedClasses={checkedClasses}
                   setCheckedClasses={setCheckedClasses}
+                  expandedState={expandedState}
+                  setExpandedState={setExpandedState}
                 />
               </div>
             </dt>
 
             {group.items.map((item, index) => (
-              <dd
-                key={index}
-                style={{
-                  marginBottom: "8px",
-                  display: "flex",
-                  flexDirection: "column",
-                  marginLeft: 0,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <div
-                    style={{ cursor: "pointer", marginRight: "8px" }}
-                    onClick={() => toggleExpand(item.class)}
-                  >
+              <dd key={index} style={{ marginBottom: "8px", display: "flex", flexDirection: "column", marginLeft: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                  <div style={{ cursor: "pointer", marginRight: "8px" }} onClick={() => toggleExpand(item.class)}>
                     {expandedClasses[item.class] ? "▼" : "▶"}
                   </div>
 
-                  {/* Shape Display */}
                   <div style={{ margin: "5px" }}>
                     {item.shape === "triangle" && (
                       <svg width="20" height="20">
@@ -172,7 +210,8 @@ const Legend = ({
 
                   <Checkbox
                     checked={checkedClasses[item.class]}
-                    onChange={(e) => onClassChange(item.class, e.target.checked)} // Only update state, no filtering
+                    indeterminate={indeterminateState[item.class]} // Add indeterminate prop
+                    onChange={(e) => handleMainCategoryChange(item.class, e.target.checked)}
                     style={{ marginLeft: "8px" }}
                   />
                   <span style={{ marginLeft: "8px" }}>{item.label}</span>
@@ -250,46 +289,46 @@ const Legend = ({
                     </div>
 
                     <ul
-  style={{
-    maxHeight: "300px",
-    overflowY: "auto",
-    border: "1px solid #d9d9d9",
-    borderRadius: "4px",
-    padding: "8px",
-    listStyle: "none",
-    margin: 0,
-  }}
->
-  {Object.entries(expandedState)
-    .filter(([id, details]) => {
-      const query = searchQueries[item.class] || "";
-      return (
-        details.label === item.label && id.toLowerCase().includes(query)
-      );
-    })
-    .sort(([idA], [idB]) => idA.localeCompare(idB)) // Added alphabetical sorting
-    .map(([id, details]) => (
-      <li
-        key={id}
-        style={{
-          padding: "4px 0",
-          borderBottom: "1px solid #f0f0f0",
-        }}
-      >
-        <Checkbox
-          checked={details.visible}
-          onChange={(e) =>
-            setExpandedState((prev) => ({
-              ...prev,
-              [id]: { ...prev[id], visible: e.target.checked },
-            }))
-          }
-        >
-          {id}
-        </Checkbox>
-      </li>
-    ))}
-</ul>
+                      style={{
+                        maxHeight: "300px",
+                        overflowY: "auto",
+                        border: "1px solid #d9d9d9",
+                        borderRadius: "4px",
+                        padding: "8px",
+                        listStyle: "none",
+                        margin: 0,
+                      }}
+                    >
+                      {Object.entries(expandedState)
+                        .filter(([id, details]) => {
+                          const query = searchQueries[item.class] || "";
+                          return (
+                            details.label === item.label && id.toLowerCase().includes(query)
+                          );
+                        })
+                        .sort(([idA], [idB]) => idA.localeCompare(idB))
+                        .map(([id, details]) => (
+                          <li
+                            key={id}
+                            style={{
+                              padding: "4px 0",
+                              borderBottom: "1px solid #f0f0f0",
+                            }}
+                          >
+                            <Checkbox
+                              checked={details.visible}
+                              onChange={(e) =>
+                                setExpandedState((prev) => ({
+                                  ...prev,
+                                  [id]: { ...prev[id], visible: e.target.checked },
+                                }))
+                              }
+                            >
+                              {id}
+                            </Checkbox>
+                          </li>
+                        ))}
+                    </ul>
                   </div>
                 )}
               </dd>
