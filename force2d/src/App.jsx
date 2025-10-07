@@ -249,30 +249,45 @@ function App() {
     setIsBoxOpen(false);
   };
 
-  const exportToExcel = () => {
-    if (jsonData) {
-      const jsonData2 = jsonData.filter((row) => {
-        if (
-          checkedClasses[row.Disease_category] &&
-          checkedClasses[row.variant_category]
-        ) {
-          return true;
-        }
-        return false;
-      });
+ const exportToExcel = () => {
+  if (jsonData) {
+    const jsonData2 = jsonData.filter((row) => {
+      const disease = row.Disease;
+      const gene = row.SNPID;
+      const class_disease = row.Disease_category;
+      const class_gene = row.variant_category;
 
-      if (jsonData2.length > 0) {
-        const worksheet = XLSX.utils.json_to_sheet(jsonData2);
-        const book = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(book, worksheet, "Filtered_Variant_Disease");
-        XLSX.writeFile(book, "Filtered_Variant_Disease_data.xlsx");
-      } else {
-        console.log("No filtered data to export.");
+      if (!checkedClasses[class_disease]) {
+        return false;
       }
+
+      if (!checkedClasses[class_gene]) {
+        return false;
+      }
+
+      if (disease && expandedState[disease] !== undefined && !expandedState[disease].visible) {
+        return false;
+      }
+
+      if (gene && expandedState[gene] !== undefined && !expandedState[gene].visible) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (jsonData2.length > 0) {
+      const worksheet = XLSX.utils.json_to_sheet(jsonData2);
+      const book = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(book, worksheet, "Filtered_Variant_Disease");
+      XLSX.writeFile(book, "Filtered_Variant_Disease_data.xlsx");
     } else {
-      console.log("No data available to export.");
+      console.log("No filtered data to export.");
     }
-  };
+  } else {
+    console.log("No data available to export.");
+  }
+};
 
   const exportGraphImage = async (format) => {
     if (rowRef.current) {
