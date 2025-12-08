@@ -29,6 +29,8 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         Gnomad: node.Gnomad,
         GERP: node.GERP,
         protein: node.protein,
+        Phase: node.Phase,
+        Drug_name: node.Drug_name,
       })),
       links: links.map((link) => ({
         source: link.source,
@@ -42,6 +44,27 @@ const ForceNetworkGraph = ({ nodes, links }) => {
 
   // Function to draw different node shapes based on the group and class
   const getNodeColor = (nodeClass) => {
+    // Handle numeric phase values
+    if (typeof nodeClass === 'number' || (typeof nodeClass === 'string' && !isNaN(nodeClass))) {
+      const phaseNum = parseInt(nodeClass);
+      switch (phaseNum) {
+        case 0:
+          return "#FF6B6B"; // Red
+        case 1:
+          return "#4ECDC4"; // Teal
+        case 2:
+          return "#45B7D1"; // Blue
+        case 3:
+          return "#96CEB4"; // Green
+        case 4:
+          return "#FFEAA7"; // Yellow
+        case 5:
+          return "#DDA0DD"; // Purple
+        default:
+          return "black";
+      }
+    }
+    
     switch (nodeClass) {
       // Existing cases
       case "Refractive Errors":
@@ -146,6 +169,7 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         return "#BDB76B"; // Dark Khaki
       case "intron variant; intron variant; TF binding site variant":
         return "#FF1493"; // Deep Pink
+      
       // Default case
       default:
         return "black"; // Default color if class not found
@@ -181,6 +205,9 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         );
       }
       ctx.closePath();
+    } else if (node.group === "Drug") {
+      // Draw square for 'Drug'
+      ctx.rect(node.x - shapeSize, node.y - shapeSize, shapeSize * 2, shapeSize * 2);
     }
 
     ctx.fill();
@@ -344,6 +371,11 @@ const DataTable = ({ node, onClose }) => {
   if (node.group === "Disease") {
     dataSource = [
       { key: "Phenotypes", property: "Phenotypes", value: node.Phenotypes },
+    ];
+  } else if (node.group === "Drug") {
+    dataSource = [
+      { key: "Drug_name", property: "Drug Name", value: node.Drug_name },
+      { key: "Phase", property: "Phase", value: `Phase ${node.Phase}` },
     ];
   } else if (node.group === "link") {
     dataSource = [{ key: "DOIs", property: "DOIs", value: node.DOIs }];

@@ -43,6 +43,12 @@ function App() {
     "upstream gene variant": true,
     "inframe insertion": true,
     "protein altering variant": true,
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": true,
+    "4": true,
+    "5": true,
   });
 
   const [expandedState, setExpandedState] = useState({});
@@ -99,8 +105,10 @@ function App() {
     data.forEach((row) => {
       const disease = row.Disease;
       const gene = row.SNPID;
+      const drug = row.Drug_name;
       const class_disease = row.Disease_category;
       const class_gene = row["variant_category"];
+      const class_drug = row.Phase;
 
       if (checkedClasses[row.Disease_category]) {
         filteredRows.push(row);
@@ -113,6 +121,11 @@ function App() {
       }
       if (gene && expandedState[gene] !== undefined) {
         if (!expandedState[gene].visible) {
+          return;
+        }
+      }
+      if (drug && expandedState[drug] !== undefined) {
+        if (!expandedState[drug].visible) {
           return;
         }
       }
@@ -145,8 +158,21 @@ function App() {
         });
       }
 
+      if (drug && !nodesMap.has(drug)) {
+        nodesMap.set(drug, {
+          id: drug,
+          type: "Drug",
+          class: class_drug,
+          Phase: row.Phase,
+          Drug_name: row.Drug_name,
+        });
+      }
+
       if (disease && gene) {
         links.push({ source: disease, target: gene, DOIs: row.DOIs });
+      }
+      if (disease && drug) {
+        links.push({ source: disease, target: drug, DOIs: row.DOIs });
       }
     });
 
@@ -157,7 +183,7 @@ function App() {
     if (jsonData) {
       const newGraphData = createNodesAndLinks(jsonData);
       const initialState = newGraphData.nodes
-        .filter((item) => item.type === "Disease" || item.type === "Gene")
+        .filter((item) => item.type === "Disease" || item.type === "Gene" || item.type === "Drug")
         .reduce((acc, item) => {
           acc[item.id] = {
             visible: true,
@@ -185,13 +211,47 @@ function App() {
       const filteredData = jsonData.filter((row) => {
         const diseaseCategory = row.Disease_category;
         const variantCategory = row.variant_category;
+        const drugCategory = row.Phase !== undefined && row.Phase !== null ? String(row.Phase) : undefined;
         const disease = row.Disease;
         const snpId = row.SNPID;
+        const drug = row.Drug_name;
 
-        if (
-          !selectedClasses.includes(diseaseCategory) ||
-          !selectedClasses.includes(variantCategory)
-        ) {
+        // Disease category must be selected
+        if (!selectedClasses.includes(diseaseCategory)) {
+          return false;
+        }
+
+        // Apply variant filter only if any variant classes are selected
+        const anyVariantSelected = [
+          "missense variant",
+          "inframe deletion",
+          "frameshift variant",
+          "intron variant",
+          "regulatory region variant",
+          "intergenic variant",
+          "splice region variant",
+          "splice donor variant",
+          "non coding transcript exon variant",
+          "3 prime UTR variant",
+          "5 prime UTR variant",
+          "stop gained",
+          "synonymous variant",
+          "TF binding site variant",
+          "splice acceptor variant",
+          "downstream gene variant",
+          "stop lost",
+          "upstream gene variant",
+          "inframe insertion",
+          "protein altering variant",
+        ].some((v) => selectedClasses.includes(v));
+
+        if (anyVariantSelected) {
+          if (!selectedClasses.includes(variantCategory)) {
+            return false;
+          }
+        }
+
+        if (drugCategory && !selectedClasses.includes(drugCategory)) {
           return false;
         }
 
@@ -201,8 +261,14 @@ function App() {
           }
         }
 
-        if (snpId && expandedState[snpId] !== undefined) {
+        if (snpId && expandedState[snpId] !== undefined) { // Gene visibility
           if (!selectedExpandedItems.includes(snpId)) {
+            return false;
+          }
+        }
+
+        if (drug && expandedState[drug] !== undefined) { // Drug visibility
+          if (!selectedExpandedItems.includes(drug)) {
             return false;
           }
         }
@@ -254,8 +320,10 @@ function App() {
     const jsonData2 = jsonData.filter((row) => {
       const disease = row.Disease;
       const gene = row.SNPID;
+      const drug = row.Drug_name;
       const class_disease = row.Disease_category;
       const class_gene = row.variant_category;
+      const class_drug = row.Phase;
 
       if (!checkedClasses[class_disease]) {
         return false;
@@ -265,11 +333,19 @@ function App() {
         return false;
       }
 
+      if (class_drug && !checkedClasses[class_drug]) {
+        return false;
+      }
+
       if (disease && expandedState[disease] !== undefined && !expandedState[disease].visible) {
         return false;
       }
 
       if (gene && expandedState[gene] !== undefined && !expandedState[gene].visible) {
+        return false;
+      }
+
+      if (drug && expandedState[drug] !== undefined && !expandedState[drug].visible) {
         return false;
       }
 
