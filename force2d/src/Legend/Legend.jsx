@@ -218,9 +218,15 @@ const Legend = ({
                       </svg>
                     )}
                     {item.shape === "square" && (
-                      <svg width="20" height="20">
-                        <rect x="0" y="0" width="20" height="20" fill={item.color} />
-                      </svg>
+                <div
+  style={{
+    margin: "5px",
+    width: "30px",
+    height: "16px",
+    backgroundColor: item.color,
+    borderRadius: "9999px"   // capsule shape
+  }}
+></div>
                     )}
                   </div>
 

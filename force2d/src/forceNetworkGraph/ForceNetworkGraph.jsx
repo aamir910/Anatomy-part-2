@@ -207,8 +207,26 @@ const ForceNetworkGraph = ({ nodes, links }) => {
       ctx.closePath();
     } else if (node.group === "Drug") {
       // Draw square for 'Drug'
-      ctx.rect(node.x - shapeSize, node.y - shapeSize, shapeSize * 2, shapeSize * 2);
-    }
+   const w = shapeSize * 2;
+  const h = shapeSize;
+  const r = h / 2;
+
+  const x = node.x - w / 2;
+  const y = node.y - h / 2;
+
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+
+  ctx.fill();
+  ctx.stroke();   }
 
     ctx.fill();
 
