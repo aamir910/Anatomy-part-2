@@ -26,7 +26,9 @@ const ToggleCategory = ({
       // Filter expandedState to only update items that belong to this category
       Object.entries(updatedExpandedState).forEach(([id, details]) => {
         // Check if this expanded item belongs to any of the current category's items
-        const belongsToCategory = categoryItems.some(item => item.label === details.label);
+        const belongsToCategory = categoryItems.some(
+          (item) => String(item.class) === String(details.label)
+        );
         if (belongsToCategory) {
           updatedExpandedState[id] = { ...details, visible: true };
         }
@@ -54,7 +56,9 @@ const ToggleCategory = ({
       // Filter expandedState to only update items that belong to this category
       Object.entries(updatedExpandedState).forEach(([id, details]) => {
         // Check if this expanded item belongs to any of the current category's items
-        const belongsToCategory = categoryItems.some(item => item.label === details.label);
+        const belongsToCategory = categoryItems.some(
+          (item) => String(item.class) === String(details.label)
+        );
         if (belongsToCategory) {
           updatedExpandedState[id] = { ...details, visible: false };
         }

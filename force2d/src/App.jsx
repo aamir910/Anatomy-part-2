@@ -1,10 +1,12 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import * as XLSX from "xlsx";
 import { Card, Select, Row, Col, Button, Modal } from "antd";
 import html2canvas from "html2canvas";
 import { saveAs } from 'file-saver'; // Added for SVG export
 import ForceNetworkGraph from "./forceNetworkGraph/ForceNetworkGraph";
 import Legend from "./Legend/Legend";
+
+const DEFAULT_SELECTED_DISEASES = ["Cone-rod dystrophy", "Cone dystrophy"];
 
 function App() {
   const [jsonData, setJsonData] = useState(null);
@@ -53,10 +55,10 @@ function App() {
 
   const [expandedState, setExpandedState] = useState({});
   const [uniqueClasses, setUniqueClasses] = useState([]);
-  const [selectedValues, setSelectedValues] = useState([]);
-  const [uniqueModes, setUniqueModes] = useState([]);
+  const [selectedDiseases, setSelectedDiseases] = useState(DEFAULT_SELECTED_DISEASES);
   const [isBoxOpen, setIsBoxOpen] = useState(false);
   const rowRef = useRef(null);
+  const hasInitialFilterApplied = useRef(false);
   const { Option } = Select;
 
   useEffect(() => {
@@ -94,7 +96,50 @@ function App() {
         classes.add(classOfNode);
       }
     });
-    setUniqueClasses(Array.from(classes));
+    setUniqueClasses(Array.from(classes).sort((a, b) => a.localeCompare(b)));
+    setSelectedDiseases((prev) => {
+      const validDefaults = DEFAULT_SELECTED_DISEASES.filter((disease) => classes.has(disease));
+      if (validDefaults.length > 0) {
+        return validDefaults;
+      }
+      return prev;
+    });
+  };
+
+  const buildExpandedStateFromData = (data) => {
+    const initialState = {};
+
+    data.forEach((row) => {
+      const disease = row.Disease;
+      const gene = row.SNPID;
+      const drug = row.Drug_name;
+
+      if (disease && !initialState[disease]) {
+        initialState[disease] = {
+          visible: true,
+          label: row.Disease_category,
+          type: "Disease",
+        };
+      }
+
+      if (gene && !initialState[gene]) {
+        initialState[gene] = {
+          visible: true,
+          label: row.variant_category,
+          type: "Gene",
+        };
+      }
+
+      if (drug && !initialState[drug]) {
+        initialState[drug] = {
+          visible: true,
+          label: String(row.Phase),
+          type: "Drug",
+        };
+      }
+    });
+
+    return initialState;
   };
 
   const createNodesAndLinks = (data) => {
@@ -181,23 +226,16 @@ function App() {
 
   useEffect(() => {
     if (jsonData) {
-      const newGraphData = createNodesAndLinks(jsonData);
-      const initialState = newGraphData.nodes
-        .filter((item) => item.type === "Disease" || item.type === "Gene" || item.type === "Drug")
-        .reduce((acc, item) => {
-          acc[item.id] = {
-            visible: true,
-            label: item.class,
-            type: item.type,
-          };
-          return acc;
-        }, {});
-
-      setExpandedState(initialState);
-      console.log("initialState", initialState);
-      setGraphData(newGraphData);
+      const scopedRows =
+        selectedDiseases.length > 0
+          ? jsonData.filter((row) => selectedDiseases.includes(row.Disease))
+          : [];
+      setExpandedState(buildExpandedStateFromData(scopedRows));
+      if (hasInitialFilterApplied.current) {
+        setGraphData({ nodes: [], links: [] });
+      }
     }
-  }, [jsonData]);
+  }, [jsonData, selectedDiseases]);
 
   const handleClassCheckboxChange = (className, checked) => {
     setCheckedClasses((prevCheckedClasses) => ({
@@ -206,8 +244,13 @@ function App() {
     }));
   };
 
-  const handleFilterData = ({ selectedClasses, selectedExpandedItems }) => {
+  const handleFilterData = useCallback(({ selectedClasses, selectedExpandedItems }) => {
     if (jsonData) {
+      if (selectedDiseases.length === 0) {
+        setGraphData({ nodes: [], links: [] });
+        return;
+      }
+
       const filteredData = jsonData.filter((row) => {
         const diseaseCategory = row.Disease_category;
         const variantCategory = row.variant_category;
@@ -215,6 +258,10 @@ function App() {
         const disease = row.Disease;
         const snpId = row.SNPID;
         const drug = row.Drug_name;
+
+        if (!selectedDiseases.includes(disease)) {
+          return false;
+        }
 
         // Disease category must be selected
         if (!selectedClasses.includes(diseaseCategory)) {
@@ -279,32 +326,42 @@ function App() {
       const newGraphData = createNodesAndLinks(filteredData);
       setGraphData(newGraphData);
     }
-  };
+  }, [jsonData, selectedDiseases, expandedState, checkedClasses]);
 
-  const handleSelectionChange = (value) => {
-    setSelectedValues(value);
-  };
+  const applyFilters = useCallback(() => {
+    const selectedClasses = Object.entries(checkedClasses)
+      .filter(([, checked]) => checked)
+      .map(([className]) => className);
 
-  const applyFilter = () => {
-    if (jsonData) {
-      if (selectedValues.length !== 0) {
-        const filtered = originalData.filter((row) =>
-          selectedValues.includes(row["Disease"])
-        );
-        setJsonData(filtered);
-        if (filtered.length > 0) {
-          const uniqueModesArray = [
-            ...new Set(
-              filtered.flatMap((row) => [row["Disease_category"], row["variant_category"]])
-            ),
-          ];
-          setUniqueModes(uniqueModesArray);
+    const selectedExpandedItems = Object.entries(expandedState)
+      .filter(([id, details]) => {
+        if (!details.visible) {
+          return false;
         }
-      } else {
-        setJsonData(originalData);
-        setUniqueModes([]);
-      }
+        if (details.type === "Disease") {
+          return selectedDiseases.includes(id);
+        }
+        return true;
+      })
+      .map(([id]) => id);
+
+    handleFilterData({ selectedClasses, selectedExpandedItems });
+  }, [checkedClasses, expandedState, selectedDiseases, handleFilterData]);
+
+  useEffect(() => {
+    if (
+      jsonData &&
+      selectedDiseases.length > 0 &&
+      Object.keys(expandedState).length > 0 &&
+      !hasInitialFilterApplied.current
+    ) {
+      hasInitialFilterApplied.current = true;
+      applyFilters();
     }
+  }, [jsonData, selectedDiseases, expandedState, applyFilters]);
+
+  const handleDiseaseSelectionChange = (value) => {
+    setSelectedDiseases(value);
   };
 
   const handleOpenBox = () => {
@@ -403,7 +460,7 @@ function App() {
       <Row gutter={16} ref={rowRef}>
         <Col span={5} style={{ minWidth: "16%" }}>
           <Card
-            title=""
+            title="Legend Filters"
             bordered
             style={{
               backgroundColor: "#ffffff",
@@ -414,11 +471,10 @@ function App() {
             <Legend
               checkedClasses={checkedClasses}
               onClassChange={handleClassCheckboxChange}
-              selectedValues={uniqueModes}
               setCheckedClasses={setCheckedClasses}
               expandedState={expandedState}
               setExpandedState={setExpandedState}
-              onFilterData={handleFilterData}
+              selectedDiseases={selectedDiseases}
             />
           </Card>
         </Col>
@@ -446,6 +502,41 @@ function App() {
               borderRadius: "8px",
             }}
           >
+            <div style={{ marginBottom: "16px" }}>
+              <label
+                htmlFor="disease-filter"
+                style={{ display: "block", marginBottom: "8px", fontWeight: 500 }}
+              >
+                Filter by Disease Name
+              </label>
+              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <Select
+                  id="disease-filter"
+                  mode="multiple"
+                  showSearch
+                  allowClear
+                  placeholder="Select one or more diseases"
+                  value={selectedDiseases}
+                  onChange={handleDiseaseSelectionChange}
+                  optionFilterProp="children"
+                  style={{ flex: 1 }}
+                >
+                  {uniqueClasses.map((disease) => (
+                    <Option key={disease} value={disease}>
+                      {disease}
+                    </Option>
+                  ))}
+                </Select>
+                <Button
+                  type="primary"
+                  onClick={applyFilters}
+                  disabled={selectedDiseases.length === 0}
+                >
+                  Filter Data
+                </Button>
+              </div>
+            </div>
+
             {graphData.nodes.length > 0 && graphData.links.length > 0 ? (
               <ForceNetworkGraph nodes={graphData.nodes} links={graphData.links} />
             ) : (
@@ -456,7 +547,7 @@ function App() {
                   overflow: "hidden",
                 }}
               >
-                No data in current filtration...
+                Select diseases and click Filter Data to view the graph.
               </p>
             )}
           </Card>
