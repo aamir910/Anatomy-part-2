@@ -89,8 +89,12 @@ const ForceNetworkGraph = ({ nodes, links }) => {
         return "teal";
       case "Eye Neoplasms":
         return "salmon";
+      case "Eye Nwoplasms":
+        return "salmon";
       case "Lacrimal Apparatus Diseases":
         return "violet";
+      case "Multiple reported":
+        return "#708090";
 
       // New cases with unique colors
       case "missense variant":

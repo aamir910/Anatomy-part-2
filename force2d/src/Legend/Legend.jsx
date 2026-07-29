@@ -45,7 +45,8 @@ const LEGEND_ITEMS = [
       { shape: "circle", color: "#D2691E", label: "upstream gene variant", class: "upstream gene variant" },
       { shape: "circle", color: "#20B2AA", label: "frameshift variant", class: "frameshift variant" },
       { shape: "circle", color: "#8B008B", label: "inframe insertion", class: "inframe insertion" },
-      { shape: "circle", color: "#5F9EA0", label: "protein altering variant", class: "protein altering variant" },
+      { shape: "circle", color: "#708090", label: "Multiple reported", class: "Multiple reported" },
+      { shape: "circle", color: "#20B2AA", label: "rameshift variant", class: "rameshift variant" },
     ],
   },
   {
@@ -88,7 +89,8 @@ const Legend = ({
       ...group,
       items: group.items.filter((item) =>
         Object.values(expandedState).some(
-          (details) => String(details.label) === String(item.class)
+          (details) =>
+            String(details.label).toLowerCase() === String(item.class).toLowerCase()
         )
       ),
     })).filter((group) => group.items.length > 0);
@@ -99,7 +101,7 @@ const Legend = ({
 
     return Object.entries(expandedState)
       .filter(([id, details]) => {
-        if (String(details.label) !== String(item.class)) {
+        if (String(details.label).toLowerCase() !== String(item.class).toLowerCase()) {
           return false;
         }
         if (details.type === "Disease" && !selectedDiseases.includes(id)) {
@@ -120,7 +122,7 @@ const Legend = ({
       group.items.forEach((item) => {
         const relatedExpandedItems = Object.entries(expandedState).filter(
           ([id, details]) => {
-            if (String(details.label) !== String(item.class)) {
+            if (String(details.label).toLowerCase() !== String(item.class).toLowerCase()) {
               return false;
             }
             if (details.type === "Disease") {
@@ -174,7 +176,7 @@ const Legend = ({
       setExpandedState((prev) => {
         const updated = { ...prev };
         Object.entries(updated).forEach(([id, details]) => {
-          if (String(details.label) !== String(targetItem.class)) {
+          if (String(details.label).toLowerCase() !== String(targetItem.class).toLowerCase()) {
             return;
           }
           if (details.type === "Disease" && !selectedDiseases.includes(id)) {

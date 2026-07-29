@@ -8,6 +8,14 @@ import Legend from "./Legend/Legend";
 
 const DEFAULT_SELECTED_DISEASES = ["Cone-rod dystrophy", "Cone dystrophy"];
 
+const normalizeDiseaseCategory = (category) => {
+  if (category == null) return category;
+  const aliases = {
+    "Eye Nwoplasms": "Eye Neoplasms",
+  };
+  return aliases[String(category).trim()] || String(category).trim();
+};
+
 function App() {
   const [jsonData, setJsonData] = useState(null);
   const [originalData, setOriginalData] = useState(null);
@@ -45,6 +53,8 @@ function App() {
     "upstream gene variant": true,
     "inframe insertion": true,
     "protein altering variant": true,
+    "Multiple reported": true,
+    "rameshift variant": true,
     "0": true,
     "1": true,
     "2": true,
@@ -117,7 +127,7 @@ function App() {
       if (disease && !initialState[disease]) {
         initialState[disease] = {
           visible: true,
-          label: row.Disease_category,
+          label: normalizeDiseaseCategory(row.Disease_category),
           type: "Disease",
         };
       }
@@ -151,11 +161,11 @@ function App() {
       const disease = row.Disease;
       const gene = row.SNPID;
       const drug = row.Drug_name;
-      const class_disease = row.Disease_category;
+      const class_disease = normalizeDiseaseCategory(row.Disease_category);
       const class_gene = row["variant_category"];
       const class_drug = row.Phase;
 
-      if (checkedClasses[row.Disease_category]) {
+      if (checkedClasses[class_disease]) {
         filteredRows.push(row);
       }
 
@@ -252,7 +262,7 @@ function App() {
       }
 
       const filteredData = jsonData.filter((row) => {
-        const diseaseCategory = row.Disease_category;
+        const diseaseCategory = normalizeDiseaseCategory(row.Disease_category);
         const variantCategory = row.variant_category;
         const drugCategory = row.Phase !== undefined && row.Phase !== null ? String(row.Phase) : undefined;
         const disease = row.Disease;
@@ -378,7 +388,7 @@ function App() {
       const disease = row.Disease;
       const gene = row.SNPID;
       const drug = row.Drug_name;
-      const class_disease = row.Disease_category;
+      const class_disease = normalizeDiseaseCategory(row.Disease_category);
       const class_gene = row.variant_category;
       const class_drug = row.Phase;
 
