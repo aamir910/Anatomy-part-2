@@ -248,13 +248,87 @@ function App() {
       return;
     }
 
-    const filteredData = jsonData.filter((row) =>
+    const diseaseScoped = jsonData.filter((row) =>
       selectedDiseases.includes(row.Disease)
     );
+
+    const scopeIds = new Set();
+    const scopeClasses = new Set();
+    diseaseScoped.forEach((row) => {
+      const disease = row.Disease;
+      const gene = row.SNPID;
+      const drug = row.Drug_name;
+      const diseaseCategory = normalizeDiseaseCategory(row.Disease_category);
+      const geneCategory = row.variant_category;
+      const phaseValue =
+        row?.Phase !== undefined && row?.Phase !== null ? String(row.Phase) : undefined;
+
+      if (disease) scopeIds.add(disease);
+      if (gene) scopeIds.add(gene);
+      if (drug) scopeIds.add(drug);
+      if (diseaseCategory) scopeClasses.add(String(diseaseCategory));
+      if (geneCategory) scopeClasses.add(String(geneCategory));
+      if (phaseValue) scopeClasses.add(phaseValue);
+    });
+
+    const anyVisibleInScope = [...scopeIds].some((id) => expandedState[id]?.visible);
+
+    let activeChecked = checkedClasses;
+    let activeExpanded = expandedState;
+
+    if (!anyVisibleInScope) {
+      activeChecked = { ...checkedClasses };
+      Object.keys(activeChecked).forEach((key) => {
+        activeChecked[key] = scopeClasses.has(String(key));
+      });
+
+      activeExpanded = { ...expandedState };
+      Object.keys(activeExpanded).forEach((id) => {
+        activeExpanded[id] = {
+          ...activeExpanded[id],
+          visible: scopeIds.has(id),
+        };
+      });
+
+      setCheckedClasses(activeChecked);
+      setExpandedState(activeExpanded);
+    }
+
+    const filteredData = diseaseScoped.filter((row) => {
+      const disease = row.Disease;
+      const gene = row.SNPID;
+      const drug = row.Drug_name;
+      const diseaseCategory = normalizeDiseaseCategory(row.Disease_category);
+      const geneCategory = row.variant_category;
+      const phaseValue =
+        row?.Phase !== undefined && row?.Phase !== null ? String(row.Phase) : undefined;
+
+      const classMatched =
+        (diseaseCategory && activeChecked[diseaseCategory]) ||
+        (geneCategory && activeChecked[geneCategory]) ||
+        (phaseValue && activeChecked[phaseValue]);
+
+      if (!classMatched) {
+        return false;
+      }
+
+      if (disease && activeExpanded[disease] !== undefined && !activeExpanded[disease].visible) {
+        return false;
+      }
+      if (gene && activeExpanded[gene] !== undefined && !activeExpanded[gene].visible) {
+        return false;
+      }
+      if (drug && activeExpanded[drug] !== undefined && !activeExpanded[drug].visible) {
+        return false;
+      }
+
+      return true;
+    });
+
     const newGraphData = createNodesAndLinks(filteredData);
     setGraphData(newGraphData);
     syncLegendFromGraph(newGraphData);
-  }, [jsonData, selectedDiseases, syncLegendFromGraph]);
+  }, [jsonData, selectedDiseases, checkedClasses, expandedState, syncLegendFromGraph]);
 
   useEffect(() => {
     if (jsonData) {
@@ -383,7 +457,9 @@ function App() {
           >
             <Legend
               checkedClasses={checkedClasses}
+              setCheckedClasses={setCheckedClasses}
               expandedState={expandedState}
+              setExpandedState={setExpandedState}
             />
           </Card>
         </Col>

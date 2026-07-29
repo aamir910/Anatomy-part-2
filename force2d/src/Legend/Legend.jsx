@@ -1,5 +1,5 @@
 import { React, useState } from "react";
-import { Row, Col, Checkbox, Input, Tag, Typography } from "antd";
+import { Row, Col, Checkbox, Input, Button, Tag, Typography } from "antd";
 
 const { Text } = Typography;
 
@@ -67,20 +67,25 @@ const GROUP_COLORS = {
   Drug: "#fff7e6",
 };
 
-const Legend = ({ checkedClasses, expandedState }) => {
+const matchesSearch = (text, query) => {
+  if (!query) return false;
+  return String(text).toLowerCase().includes(query);
+};
+
+const Legend = ({
+  checkedClasses,
+  setCheckedClasses,
+  expandedState,
+  setExpandedState,
+}) => {
   const [expandedClasses, setExpandedClasses] = useState({});
   const [searchQueries, setSearchQueries] = useState({});
 
   const getExpandedEntriesForItem = (item) => {
-    const query = searchQueries[item.class] || "";
-
     return Object.entries(expandedState)
-      .filter(([id, details]) => {
-        if (String(details.label).toLowerCase() !== String(item.class).toLowerCase()) {
-          return false;
-        }
-        return id.toLowerCase().includes(query);
-      })
+      .filter(([, details]) =>
+        String(details.label).toLowerCase() === String(item.class).toLowerCase()
+      )
       .sort(([idA], [idB]) => idA.localeCompare(idB));
   };
 
@@ -89,6 +94,61 @@ const Legend = ({ checkedClasses, expandedState }) => {
       ...prev,
       [className]: !prev[className],
     }));
+  };
+
+  const handleCategoryChange = (item, checked) => {
+    const query = searchQueries[item.class] || "";
+    setCheckedClasses((prev) => ({ ...prev, [item.class]: checked }));
+    setExpandedState((prev) => {
+      const updated = { ...prev };
+      Object.entries(updated).forEach(([id, details]) => {
+        if (String(details.label).toLowerCase() !== String(item.class).toLowerCase()) {
+          return;
+        }
+        if (!matchesSearch(id, query)) {
+          return;
+        }
+        updated[id] = { ...details, visible: checked };
+      });
+      return updated;
+    });
+  };
+
+  const setMatchingItemsVisibility = (item, visible) => {
+    const query = searchQueries[item.class] || "";
+    setExpandedState((prev) => {
+      const updated = { ...prev };
+      Object.entries(updated).forEach(([id, details]) => {
+        if (String(details.label).toLowerCase() !== String(item.class).toLowerCase()) {
+          return;
+        }
+        if (!matchesSearch(id, query)) {
+          return;
+        }
+        updated[id] = { ...details, visible };
+      });
+      return updated;
+    });
+
+    const matching = getExpandedEntriesForItem(item).filter(([id]) =>
+      matchesSearch(id, query)
+    );
+    if (matching.length > 0) {
+      const allVisible = matching.every(([, details]) =>
+        visible ? true : details.visible
+      );
+      if (visible) {
+        setCheckedClasses((prev) => ({ ...prev, [item.class]: true }));
+      } else if (allVisible || matching.every(() => true)) {
+        const stillVisible = getExpandedEntriesForItem(item).some(
+          ([id, details]) => !matchesSearch(id, query) && details.visible
+        );
+        setCheckedClasses((prev) => ({
+          ...prev,
+          [item.class]: stillVisible ? prev[item.class] : false,
+        }));
+      }
+    }
   };
 
   const renderShape = (item) => {
@@ -129,7 +189,8 @@ const Legend = ({ checkedClasses, expandedState }) => {
     >
       <Col span={24} style={{ marginBottom: "12px" }}>
         <Text type="secondary" style={{ fontSize: "12px" }}>
-          Legend is read-only. Items are checked only when present in the current graph.
+          Type in Search to enable matching items for check/uncheck. Others stay disabled.
+          Then click Filter Data to update the graph.
         </Text>
       </Col>
 
@@ -157,6 +218,8 @@ const Legend = ({ checkedClasses, expandedState }) => {
 
             {group.items.map((item, index) => {
               const expandedEntries = getExpandedEntriesForItem(item);
+              const query = searchQueries[item.class] || "";
+              const categoryEnabled = matchesSearch(item.label, query);
               const checkedCount = expandedEntries.filter(([, details]) => details.visible).length;
 
               return (
@@ -168,7 +231,7 @@ const Legend = ({ checkedClasses, expandedState }) => {
                     borderRadius: "6px",
                     padding: "8px",
                     border: "1px solid #f0f0f0",
-                    opacity: checkedClasses[item.class] ? 1 : 0.7,
+                    opacity: checkedClasses[item.class] ? 1 : 0.75,
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -186,7 +249,11 @@ const Legend = ({ checkedClasses, expandedState }) => {
 
                     {renderShape(item)}
 
-                    <Checkbox checked={!!checkedClasses[item.class]} disabled />
+                    <Checkbox
+                      checked={!!checkedClasses[item.class]}
+                      disabled={!categoryEnabled}
+                      onChange={(e) => handleCategoryChange(item, e.target.checked)}
+                    />
 
                     <Text style={{ fontSize: "13px", flex: 1 }}>{item.label}</Text>
 
@@ -198,7 +265,7 @@ const Legend = ({ checkedClasses, expandedState }) => {
                   {expandedClasses[item.class] && (
                     <div style={{ marginTop: "10px", marginLeft: "30px" }}>
                       <Input
-                        placeholder="Search..."
+                        placeholder="Search to enable items..."
                         size="small"
                         value={searchQueries[item.class] || ""}
                         onChange={(e) =>
@@ -210,6 +277,25 @@ const Legend = ({ checkedClasses, expandedState }) => {
                         style={{ marginBottom: "8px" }}
                         allowClear
                       />
+
+                      <div style={{ display: "flex", gap: "6px", marginBottom: "8px" }}>
+                        <Button
+                          size="small"
+                          type="primary"
+                          disabled={!query}
+                          onClick={() => setMatchingItemsVisibility(item, true)}
+                        >
+                          Select Matching
+                        </Button>
+                        <Button
+                          size="small"
+                          danger
+                          disabled={!query}
+                          onClick={() => setMatchingItemsVisibility(item, false)}
+                        >
+                          Unselect Matching
+                        </Button>
+                      </div>
 
                       <ul
                         style={{
@@ -230,19 +316,32 @@ const Legend = ({ checkedClasses, expandedState }) => {
                             </Text>
                           </li>
                         ) : (
-                          expandedEntries.map(([id, details]) => (
-                            <li
-                              key={id}
-                              style={{
-                                padding: "5px 0",
-                                borderBottom: "1px solid #f0f0f0",
-                              }}
-                            >
-                              <Checkbox checked={!!details.visible} disabled>
-                                <Text style={{ fontSize: "12px" }}>{id}</Text>
-                              </Checkbox>
-                            </li>
-                          ))
+                          expandedEntries.map(([id, details]) => {
+                            const enabled = matchesSearch(id, query);
+                            return (
+                              <li
+                                key={id}
+                                style={{
+                                  padding: "5px 0",
+                                  borderBottom: "1px solid #f0f0f0",
+                                  opacity: enabled ? 1 : 0.55,
+                                }}
+                              >
+                                <Checkbox
+                                  checked={!!details.visible}
+                                  disabled={!enabled}
+                                  onChange={(e) =>
+                                    setExpandedState((prev) => ({
+                                      ...prev,
+                                      [id]: { ...prev[id], visible: e.target.checked },
+                                    }))
+                                  }
+                                >
+                                  <Text style={{ fontSize: "12px" }}>{id}</Text>
+                                </Checkbox>
+                              </li>
+                            );
+                          })
                         )}
                       </ul>
                     </div>
