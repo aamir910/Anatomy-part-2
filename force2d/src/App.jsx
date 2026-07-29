@@ -21,46 +21,46 @@ function App() {
   const [originalData, setOriginalData] = useState(null);
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [checkedClasses, setCheckedClasses] = useState({
-    "Conjunctival Diseases": true,
-    "Corneal Diseases": true,
-    "Eye Neoplasms": true,
-    "Lacrimal Apparatus Diseases": true,
-    "Lens Diseases": true,
-    "Ocular Hypertension": true,
-    "Ocular Motility Disorders": true,
-    "Orbital Diseases": true,
-    Others: true,
-    "Refractive Errors": true,
-    "Retinal Diseases": true,
-    "Uveal Diseases": true,
-    "missense variant": true,
-    "inframe deletion": true,
-    "frameshift variant": true,
-    "intron variant": true,
-    "regulatory region variant": true,
-    "intergenic variant": true,
-    "splice region variant": true,
-    "splice donor variant": true,
-    "non coding transcript exon variant": true,
-    "3 prime UTR variant": true,
-    "5 prime UTR variant": true,
-    "stop gained": true,
-    "synonymous variant": true,
-    "TF binding site variant": true,
-    "splice acceptor variant": true,
-    "downstream gene variant": true,
-    "stop lost": true,
-    "upstream gene variant": true,
-    "inframe insertion": true,
-    "protein altering variant": true,
-    "Multiple reported": true,
-    "rameshift variant": true,
-    "0": true,
-    "1": true,
-    "2": true,
-    "3": true,
-    "4": true,
-    "5": true,
+    "Conjunctival Diseases": false,
+    "Corneal Diseases": false,
+    "Eye Neoplasms": false,
+    "Lacrimal Apparatus Diseases": false,
+    "Lens Diseases": false,
+    "Ocular Hypertension": false,
+    "Ocular Motility Disorders": false,
+    "Orbital Diseases": false,
+    Others: false,
+    "Refractive Errors": false,
+    "Retinal Diseases": false,
+    "Uveal Diseases": false,
+    "missense variant": false,
+    "inframe deletion": false,
+    "frameshift variant": false,
+    "intron variant": false,
+    "regulatory region variant": false,
+    "intergenic variant": false,
+    "splice region variant": false,
+    "splice donor variant": false,
+    "non coding transcript exon variant": false,
+    "3 prime UTR variant": false,
+    "5 prime UTR variant": false,
+    "stop gained": false,
+    "synonymous variant": false,
+    "TF binding site variant": false,
+    "splice acceptor variant": false,
+    "downstream gene variant": false,
+    "stop lost": false,
+    "upstream gene variant": false,
+    "inframe insertion": false,
+    "protein altering variant": false,
+    "Multiple reported": false,
+    "rameshift variant": false,
+    "0": false,
+    "1": false,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false,
   });
 
   const [expandedState, setExpandedState] = useState({});
@@ -126,7 +126,7 @@ function App() {
 
       if (disease && !initialState[disease]) {
         initialState[disease] = {
-          visible: true,
+          visible: false,
           label: normalizeDiseaseCategory(row.Disease_category),
           type: "Disease",
         };
@@ -134,7 +134,7 @@ function App() {
 
       if (gene && !initialState[gene]) {
         initialState[gene] = {
-          visible: true,
+          visible: false,
           label: row.variant_category,
           type: "Gene",
         };
@@ -142,7 +142,7 @@ function App() {
 
       if (drug && !initialState[drug]) {
         initialState[drug] = {
-          visible: true,
+          visible: false,
           label: String(row.Phase),
           type: "Drug",
         };
@@ -153,7 +153,6 @@ function App() {
   };
 
   const createNodesAndLinks = (data) => {
-    let filteredRows = [];
     const nodesMap = new Map();
     const links = [];
 
@@ -164,26 +163,6 @@ function App() {
       const class_disease = normalizeDiseaseCategory(row.Disease_category);
       const class_gene = row["variant_category"];
       const class_drug = row.Phase;
-
-      if (checkedClasses[class_disease]) {
-        filteredRows.push(row);
-      }
-
-      if (disease && expandedState[disease] !== undefined) {
-        if (!expandedState[disease].visible) {
-          return;
-        }
-      }
-      if (gene && expandedState[gene] !== undefined) {
-        if (!expandedState[gene].visible) {
-          return;
-        }
-      }
-      if (drug && expandedState[drug] !== undefined) {
-        if (!expandedState[drug].visible) {
-          return;
-        }
-      }
 
       if (disease && !nodesMap.has(disease)) {
         nodesMap.set(disease, {
@@ -217,7 +196,7 @@ function App() {
         nodesMap.set(drug, {
           id: drug,
           type: "Drug",
-          class: class_drug,
+          class: class_drug !== undefined && class_drug !== null ? String(class_drug) : class_drug,
           Phase: row.Phase,
           Drug_name: row.Drug_name,
         });
@@ -234,144 +213,68 @@ function App() {
     return { nodes: Array.from(nodesMap.values()), links };
   };
 
-  useEffect(() => {
-    if (jsonData) {
-      const scopedRows =
-        selectedDiseases.length > 0
-          ? jsonData.filter((row) => selectedDiseases.includes(row.Disease))
-          : [];
-      setExpandedState(buildExpandedStateFromData(scopedRows));
-      if (hasInitialFilterApplied.current) {
-        setGraphData({ nodes: [], links: [] });
-      }
-    }
-  }, [jsonData, selectedDiseases]);
+  const syncLegendFromGraph = useCallback((graph) => {
+    const presentIds = new Set((graph?.nodes || []).map((node) => node.id));
+    const presentClasses = new Set(
+      (graph?.nodes || []).map((node) => String(node.class))
+    );
 
-  const handleClassCheckboxChange = (className, checked) => {
-    setCheckedClasses((prevCheckedClasses) => ({
-      ...prevCheckedClasses,
-      [className]: checked,
-    }));
-  };
-
-  const handleFilterData = useCallback(({ selectedClasses, selectedExpandedItems }) => {
-    if (jsonData) {
-      if (selectedDiseases.length === 0) {
-        setGraphData({ nodes: [], links: [] });
-        return;
-      }
-
-      const filteredData = jsonData.filter((row) => {
-        const diseaseCategory = normalizeDiseaseCategory(row.Disease_category);
-        const variantCategory = row.variant_category;
-        const drugCategory = row.Phase !== undefined && row.Phase !== null ? String(row.Phase) : undefined;
-        const disease = row.Disease;
-        const snpId = row.SNPID;
-        const drug = row.Drug_name;
-
-        if (!selectedDiseases.includes(disease)) {
-          return false;
-        }
-
-        // Disease category must be selected
-        if (!selectedClasses.includes(diseaseCategory)) {
-          return false;
-        }
-
-        // Apply variant filter only if any variant classes are selected
-        const anyVariantSelected = [
-          "missense variant",
-          "inframe deletion",
-          "frameshift variant",
-          "intron variant",
-          "regulatory region variant",
-          "intergenic variant",
-          "splice region variant",
-          "splice donor variant",
-          "non coding transcript exon variant",
-          "3 prime UTR variant",
-          "5 prime UTR variant",
-          "stop gained",
-          "synonymous variant",
-          "TF binding site variant",
-          "splice acceptor variant",
-          "downstream gene variant",
-          "stop lost",
-          "upstream gene variant",
-          "inframe insertion",
-          "protein altering variant",
-        ].some((v) => selectedClasses.includes(v));
-
-        if (anyVariantSelected) {
-          if (!selectedClasses.includes(variantCategory)) {
-            return false;
-          }
-        }
-
-        if (drugCategory && !selectedClasses.includes(drugCategory)) {
-          return false;
-        }
-
-        if (disease && expandedState[disease] !== undefined) {
-          if (!selectedExpandedItems.includes(disease)) {
-            return false;
-          }
-        }
-
-        if (snpId && expandedState[snpId] !== undefined) { // Gene visibility
-          if (!selectedExpandedItems.includes(snpId)) {
-            return false;
-          }
-        }
-
-        if (drug && expandedState[drug] !== undefined) { // Drug visibility
-          if (!selectedExpandedItems.includes(drug)) {
-            return false;
-          }
-        }
-
-        return true;
+    setCheckedClasses((prev) => {
+      const next = { ...prev };
+      Object.keys(next).forEach((key) => {
+        next[key] = presentClasses.has(String(key));
       });
+      return next;
+    });
 
-      const newGraphData = createNodesAndLinks(filteredData);
-      setGraphData(newGraphData);
-    }
-  }, [jsonData, selectedDiseases, expandedState, checkedClasses]);
+    setExpandedState((prev) => {
+      const next = { ...prev };
+      Object.keys(next).forEach((id) => {
+        next[id] = {
+          ...next[id],
+          visible: presentIds.has(id),
+        };
+      });
+      return next;
+    });
+  }, []);
 
   const applyFilters = useCallback(() => {
-    const selectedClasses = Object.entries(checkedClasses)
-      .filter(([, checked]) => checked)
-      .map(([className]) => className);
+    if (!jsonData) return;
 
-    const selectedExpandedItems = Object.entries(expandedState)
-      .filter(([id, details]) => {
-        if (!details.visible) {
-          return false;
-        }
-        if (details.type === "Disease") {
-          return selectedDiseases.includes(id);
-        }
-        return true;
-      })
-      .map(([id]) => id);
+    if (selectedDiseases.length === 0) {
+      setGraphData({ nodes: [], links: [] });
+      syncLegendFromGraph({ nodes: [], links: [] });
+      return;
+    }
 
-    handleFilterData({ selectedClasses, selectedExpandedItems });
-  }, [checkedClasses, expandedState, selectedDiseases, handleFilterData]);
+    const filteredData = jsonData.filter((row) =>
+      selectedDiseases.includes(row.Disease)
+    );
+    const newGraphData = createNodesAndLinks(filteredData);
+    setGraphData(newGraphData);
+    syncLegendFromGraph(newGraphData);
+  }, [jsonData, selectedDiseases, syncLegendFromGraph]);
 
   useEffect(() => {
-    if (
-      jsonData &&
-      selectedDiseases.length > 0 &&
-      Object.keys(expandedState).length > 0 &&
-      !hasInitialFilterApplied.current
-    ) {
+    if (jsonData) {
+      setExpandedState(buildExpandedStateFromData(jsonData));
+    }
+  }, [jsonData]);
+
+  useEffect(() => {
+    if (jsonData && selectedDiseases.length > 0 && !hasInitialFilterApplied.current) {
       hasInitialFilterApplied.current = true;
       applyFilters();
     }
-  }, [jsonData, selectedDiseases, expandedState, applyFilters]);
+  }, [jsonData, selectedDiseases, applyFilters]);
 
   const handleDiseaseSelectionChange = (value) => {
     setSelectedDiseases(value);
+    if (hasInitialFilterApplied.current) {
+      setGraphData({ nodes: [], links: [] });
+      syncLegendFromGraph({ nodes: [], links: [] });
+    }
   };
 
   const handleOpenBox = () => {
@@ -480,11 +383,7 @@ function App() {
           >
             <Legend
               checkedClasses={checkedClasses}
-              onClassChange={handleClassCheckboxChange}
-              setCheckedClasses={setCheckedClasses}
               expandedState={expandedState}
-              setExpandedState={setExpandedState}
-              selectedDiseases={selectedDiseases}
             />
           </Card>
         </Col>
