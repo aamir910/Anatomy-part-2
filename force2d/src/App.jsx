@@ -10,12 +10,12 @@ const DEFAULT_FILTER_TYPE = "disease_name";
 const DEFAULT_SELECTED_DISEASES = ["Cone-rod dystrophy", "Cone dystrophy"];
 
 const FILTER_TYPE_OPTIONS = [
-  { value: "disease_name", label: "Disease Name" },
-  { value: "disease_class", label: "Disease Class" },
-  { value: "variant_category", label: "Variant Category" },
+  { value: "disease_name", label: "Disease name" },
+  { value: "disease_class", label: "Disease class" },
+  { value: "variant_category", label: "Variant category" },
   { value: "snp_id", label: "Variants" },
-  { value: "drug_name", label: "Drug Name" },
-  { value: "drug_phase", label: "Drug Phase" },
+  { value: "drug_name", label: "Drug name" },
+  { value: "drug_phase", label: "Drug phase" },
 ];
 
 const FILTER_VALUE_PLACEHOLDERS = {
@@ -660,7 +660,7 @@ function App() {
                   htmlFor="filter-type"
                   style={{ display: "block", fontWeight: 500 }}
                 >
-                  Filter Type
+                  Filter type
                 </label>
                 <Select
                   id="filter-type"
@@ -715,7 +715,7 @@ function App() {
                     onClick={applyFilters}
                     disabled={selectedFilterValues.length === 0}
                   >
-                    Filter Data
+                    Filter data
                   </Button>
                 </>
               )}
@@ -731,7 +731,7 @@ function App() {
                   overflow: "hidden",
                 }}
               >
-                Select filter values and click Filter Data to view the graph.
+                Select filter values and click Filter data to view the graph.
               </p>
             )}
           </Card>
