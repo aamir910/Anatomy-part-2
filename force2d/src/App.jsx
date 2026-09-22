@@ -13,7 +13,7 @@ const FILTER_TYPE_OPTIONS = [
   { value: "disease_name", label: "Disease Name" },
   { value: "disease_class", label: "Disease Class" },
   { value: "variant_category", label: "Variant Category" },
-  { value: "snp_id", label: "Gene/SNP" },
+  { value: "snp_id", label: "Variants" },
   { value: "drug_name", label: "Drug Name" },
   { value: "drug_phase", label: "Drug Phase" },
 ];
@@ -22,7 +22,7 @@ const FILTER_VALUE_PLACEHOLDERS = {
   disease_name: "Select one or more disease names",
   disease_class: "Select one or more disease classes",
   variant_category: "Select one or more variant categories",
-  snp_id: "Select one or more genes/SNPs",
+  snp_id: "Select one or more variants",
   drug_name: "Select one or more drug names",
   drug_phase: "Select one or more drug phases",
 };
