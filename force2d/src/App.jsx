@@ -15,6 +15,7 @@ const FILTER_TYPE_OPTIONS = [
   { value: "variant_category", label: "Variant Category" },
   { value: "snp_id", label: "Gene/SNP" },
   { value: "drug_name", label: "Drug Name" },
+  { value: "drug_phase", label: "Drug Phase" },
 ];
 
 const FILTER_VALUE_PLACEHOLDERS = {
@@ -23,6 +24,7 @@ const FILTER_VALUE_PLACEHOLDERS = {
   variant_category: "Select one or more variant categories",
   snp_id: "Select one or more genes/SNPs",
   drug_name: "Select one or more drug names",
+  drug_phase: "Select one or more drug phases",
 };
 
 const normalizeDiseaseCategory = (category) => {
@@ -132,6 +134,7 @@ function App() {
     variant_category: [],
     snp_id: [],
     drug_name: [],
+    drug_phase: [],
   });
   const [isBoxOpen, setIsBoxOpen] = useState(false);
   const rowRef = useRef(null);
@@ -171,6 +174,7 @@ function App() {
     const variantCategories = new Set();
     const snpIds = new Set();
     const drugNames = new Set();
+    const drugPhases = new Set();
 
     data.forEach((row) => {
       if (row.Disease) diseaseNames.add(row.Disease);
@@ -180,6 +184,9 @@ function App() {
       if (row.SNPID) snpIds.add(row.SNPID);
       if (row.Gene) snpIds.add(row.Gene);
       if (row.Drug_name) drugNames.add(row.Drug_name);
+      if (row.Phase !== undefined && row.Phase !== null && row.Phase !== "") {
+        drugPhases.add(String(row.Phase));
+      }
     });
 
     const sorted = (set) => Array.from(set).sort((a, b) => String(a).localeCompare(String(b)));
@@ -190,6 +197,7 @@ function App() {
       variant_category: sorted(variantCategories),
       snp_id: sorted(snpIds),
       drug_name: sorted(drugNames),
+      drug_phase: sorted(drugPhases),
     });
 
     const validDefaults = DEFAULT_SELECTED_DISEASES.filter((disease) =>
@@ -214,6 +222,12 @@ function App() {
         return values.includes(row.SNPID) || values.includes(row.Gene);
       case "drug_name":
         return values.includes(row.Drug_name);
+      case "drug_phase":
+        return (
+          row.Phase !== undefined &&
+          row.Phase !== null &&
+          values.includes(String(row.Phase))
+        );
       default:
         return false;
     }
